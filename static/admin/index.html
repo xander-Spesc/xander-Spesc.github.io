@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>博客后台 · 灵梦</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+:root {
+  --red: #c0392b;
+  --red-dark: #96281b;
+  --red-light: #fadbd8;
+  --red-pale: #fff5f5;
+  --bg: #fafafa;
+  --white: #ffffff;
+  --text: #2c2c2c;
+  --text-muted: #999;
+  --border: #eeeeee;
+  --success: #27ae60;
+  --success-bg: #eafaf1;
+  --sidebar-w: 230px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.screen { display: none; position: fixed; inset: 0; z-index: 100; }
+.screen.active { display: flex; }
+
+/* LOGIN */
+#loginScreen {
+  background: linear-gradient(135deg, #c0392b 0%, #7b241c 100%);
+  align-items: center; justify-content: center; flex-direction: column;
+}
+.login-box {
+  background: var(--white); border-radius: 20px; padding: 44px 40px;
+  width: 420px; box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+}
+.login-header { text-align: center; margin-bottom: 32px; }
+.login-logo { font-size: 52px; line-height: 1; margin-bottom: 12px; }
+.login-header h1 { font-size: 20px; font-weight: 600; color: var(--text); }
+.login-header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+.form-input {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: 14px; outline: none; transition: border 0.2s;
+  background: var(--bg);
+}
+.form-input:focus { border-color: var(--red); background: var(--white); }
+.btn-login {
+  width: 100%; padding: 13px; background: var(--red); color: #fff;
+  border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: background 0.2s; margin-top: 8px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-login:hover { background: var(--red-dark); }
+.btn-login:disabled { background: #ccc; cursor: not-allowed; }
+.login-error { color: #e74c3c; font-size: 13px; margin-top: 10px; text-align: center; display: none; }
+.login-hint { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 16px; }
+.step-back { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-muted); cursor: pointer; margin-bottom: 16px; }
+.step-back:hover { color: var(--red); }
+
+#tokenStep { display: none; }
+#tokenStep.active { display: block; }
+#passwordStep.hidden { display: none; }
+
+/* APP */
+#appScreen { flex-direction: row; }
+
+.sidebar {
+  width: var(--sidebar-w); background: var(--red); display: flex;
+  flex-direction: column; flex-shrink: 0; height: 100vh; position: sticky; top: 0;
+}
+.sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.sidebar-logo h2 { color: #fff; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+.sidebar-logo p { color: rgba(255,255,255,0.55); font-size: 12px; margin-top: 3px; }
+.sidebar-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
+.nav-section { padding: 16px 20px 6px; font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+  color: rgba(255,255,255,0.7); font-size: 14px; cursor: pointer;
+  transition: all 0.15s; border-left: 3px solid transparent; user-select: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,0.15); color: #fff; border-left-color: #fff; }
+.nav-item i { font-size: 18px; flex-shrink: 0; }
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.12); }
+.sidebar-user { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.sidebar-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; font-weight: 600; flex-shrink: 0; }
+.sidebar-user-info p { color: #fff; font-size: 13px; font-weight: 500; }
+.sidebar-user-info span { color: rgba(255,255,255,0.5); font-size: 10px; word-break: break-all; }
+.logout-btn { width: 100%; padding: 7px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: rgba(255,255,255,0.6); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; }
+.logout-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+.main { flex: 1; height: 100vh; overflow-y: auto; }
+.page { display: none; padding: 28px; }
+.page.active { display: block; }
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.page-title { font-size: 20px; font-weight: 700; }
+.page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 9px; font-size: 14px; cursor: pointer; transition: all 0.15s; border: 1.5px solid transparent; font-weight: 500; }
+.btn-primary { background: var(--red); color: #fff; }
+.btn-primary:hover { background: var(--red-dark); }
+.btn-secondary { background: var(--white); color: var(--text); border-color: var(--border); }
+.btn-secondary:hover { border-color: var(--red); color: var(--red); }
+.btn-danger { background: var(--white); color: #e74c3c; border-color: #fadbd8; }
+.btn-danger:hover { background: #fadbd8; }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-icon { padding: 7px; border-radius: 8px; }
+
+/* CARDS */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-header h3 { font-size: 15px; font-weight: 600; }
+.card-body { padding: 20px; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; align-items: center; gap: 14px; }
+.stat-icon { width: 46px; height: 46px; border-radius: 12px; background: var(--red-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stat-icon i { font-size: 22px; color: var(--red); }
+.stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.stat-value { font-size: 24px; font-weight: 700; }
+
+/* POST LIST */
+.post-item { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.post-item:last-child { border-bottom: none; }
+.post-info { flex: 1; min-width: 0; }
+.post-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+.post-meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.badge { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.badge-green { background: var(--success-bg); color: var(--success); }
+.badge-gray { background: #f5f5f5; color: #888; }
+.post-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.action-btn { padding: 6px 10px; border-radius: 7px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text-muted); display: flex; align-items: center; gap: 4px; transition: all 0.15s; }
+.action-btn:hover { color: var(--red); border-color: var(--red-light); }
+.action-btn.del:hover { color: #e74c3c; border-color: #fadbd8; background: #fadbd8; }
+
+/* EDITOR */
+.editor-layout { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+.editor-main { display: flex; flex-direction: column; gap: 14px; }
+.editor-toolbar { display: flex; gap: 4px; flex-wrap: wrap; padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 9px 9px 0 0; border-bottom: none; }
+.tb-btn { padding: 5px 9px; border-radius: 6px; border: none; background: transparent; cursor: pointer; font-size: 13px; color: var(--text-muted); transition: all 0.15s; font-weight: 600; }
+.tb-btn:hover { background: var(--red-light); color: var(--red); }
+.tb-sep { width: 1px; background: var(--border); margin: 0 4px; }
+#markdownEditor {
+  width: 100%; min-height: 420px; padding: 16px; border: 1px solid var(--border);
+  border-radius: 0 0 9px 9px; font-size: 14px; font-family: 'Cascadia Code','Consolas',monospace;
+  outline: none; resize: vertical; line-height: 1.8; background: var(--white);
+}
+#markdownEditor:focus { border-color: var(--red); }
+.form-control { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-size: 14px; outline: none; transition: border 0.2s; font-family: inherit; }
+.form-control:focus { border-color: var(--red); }
+.editor-sidebar-section { margin-bottom: 16px; }
+.editor-sidebar-section label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text-muted); }
+
+/* SETTINGS */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.settings-item { margin-bottom: 18px; }
+.settings-item label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.settings-item .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.color-row { display: flex; align-items: center; gap: 10px; }
+.color-preview { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0; }
+.avatar-upload { display: flex; align-items: center; gap: 14px; }
+.avatar-preview { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; overflow: hidden; }
+.avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+.banner-preview { width: 100%; height: 120px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 10px; overflow: hidden; }
+.banner-preview img { width: 100%; height: 100%; object-fit: cover; }
+.upload-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1.5px dashed var(--border); border-radius: 9px; font-size: 13px; cursor: pointer; color: var(--text-muted); transition: all 0.15s; background: var(--bg); }
+.upload-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-pale); }
+input[type="file"] { display: none; }
+
+/* SOCIAL */
+.social-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.social-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--red-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.social-icon i { font-size: 18px; color: var(--red); }
+.social-name { width: 80px; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+.social-remove { padding: 6px; border-radius: 7px; border: 1px solid #fadbd8; background: #fff; color: #e74c3c; cursor: pointer; display: flex; align-items: center; flex-shrink: 0; }
+.social-remove:hover { background: #fadbd8; }
+
+/* TAG/CAT */
+.tag-item { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; background: var(--red-light); color: var(--red); font-size: 13px; margin: 4px; }
+
+/* LOADING / EMPTY */
+.loading { text-align: center; padding: 40px; color: var(--text-muted); }
+.loading i { font-size: 28px; display: block; margin-bottom: 10px; animation: spin 1s linear infinite; }
+.empty { text-align: center; padding: 40px; color: var(--text-muted); }
+.empty i { font-size: 36px; display: block; margin-bottom: 10px; opacity: 0.35; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* TOAST */
+#toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 10px; font-size: 14px; color: #fff; z-index: 9999; display: none; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); max-width: 360px; }
+#toast.success { background: var(--success); }
+#toast.error { background: #e74c3c; }
+#toast.show { display: flex; animation: slideUp 0.3s ease; }
+@keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="screen active">
+  <div class="login-box">
+    <div class="login-header">
+      <div class="login-logo">⛩️</div>
+      <h1>博客后台管理</h1>
+      <p>灵梦の博客 · 管理系统</p>
+    </div>
+
+    <!-- Step 1: 用户名密码 -->
+    <div id="passwordStep">
+      <div class="form-group">
+        <label class="form-label">用户名</label>
+        <input class="form-input" type="text" id="usernameInput" placeholder="请输入用户名" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <input class="form-input" type="password" id="passwordInput" placeholder="请输入密码" autocomplete="current-password" />
+      </div>
+      <button class="btn-login" id="loginBtn" onclick="checkPassword()">
+        <i class="ti ti-login"></i> 登录
+      </button>
+      <p class="login-error" id="pwError">用户名或密码错误</p>
+    </div>
+
+    <!-- Step 2: GitHub Token -->
+    <div id="tokenStep">
+      <span class="step-back" onclick="showPasswordStep()"><i class="ti ti-arrow-left"></i> 返回</span>
+      <div class="form-group">
+        <label class="form-label">GitHub Personal Access Token</label>
+        <input class="form-input" type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxx" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">仓库（owner/repo）</label>
+        <input class="form-input" type="text" id="repoInput" placeholder="xander-Spesc/xander-Spesc.github.io" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">文章目录路径</label>
+        <input class="form-input" type="text" id="pathInput" value="content/post" placeholder="content/post" />
+      </div>
+      <button class="btn-login" id="connectBtn" onclick="checkToken()">
+        <i class="ti ti-plug"></i> 连接仓库
+      </button>
+      <p class="login-error" id="tokenError">Token 或仓库名有误</p>
+      <p class="login-hint">Token 仅保存在本地浏览器（30天自动过期），不会上传任何服务器</p>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" class="screen">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h2>⛩ 灵梦の博客</h2>
+      <p>后台管理系统</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">内容</div>
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <i class="ti ti-layout-dashboard"></i> 概览
+      </div>
+      <div class="nav-item" onclick="showPage('posts')">
+        <i class="ti ti-file-text"></i> 文章管理
+      </div>
+      <div class="nav-item" onclick="showPage('editor'); newPost()">
+        <i class="ti ti-pencil"></i> 写文章
+      </div>
+      <div class="nav-section">外观</div>
+      <div class="nav-item" onclick="showPage('appearance')">
+        <i class="ti ti-palette"></i> 外观设置
+      </div>
+      <div class="nav-item" onclick="showPage('social')">
+        <i class="ti ti-share"></i> 社交链接
+      </div>
+      <div class="nav-item" onclick="showPage('theme')">
+        <i class="ti ti-color-swatch"></i> 主题色
+      </div>
+      <div class="nav-section">管理</div>
+      <div class="nav-item" onclick="showPage('taxonomy')">
+        <i class="ti ti-tags"></i> 分类标签
+      </div>
+      <div class="nav-item" onclick="showPage('settings')">
+        <i class="ti ti-settings"></i> 博客设置
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">薛</div>
+        <div class="sidebar-user-info">
+          <p>xuejian</p>
+          <span id="repoLabel"></span>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="logout()">
+        <i class="ti ti-logout"></i> 退出登录
+      </button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- 概览 -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div><div class="page-title">概览</div><div class="page-subtitle">欢迎回来，xuejian！</div></div>
+        <button class="btn btn-primary" onclick="showPage('editor'); newPost()"><i class="ti ti-pencil"></i> 写新文章</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon"><i class="ti ti-file-text"></i></div><div><div class="stat-label">文章总数</div><div class="stat-value" id="statTotal">-</div></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="ti ti-circle-check"></i></div><div><div class="stat-label">已发布</div><div class="stat-value" id="statPublished">-</div></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="ti ti-clock"></i></div><div><div class="stat-label">最近文章</div><div class="stat-value" id="statRecent" style="font-size:14px;margin-top:2px;">-</div></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="ti ti-brand-github"></i></div><div><div class="stat-label">仓库状态</div><div class="stat-value" style="font-size:16px;color:var(--success);">正常</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>最近文章</h3><button class="btn btn-secondary btn-sm" onclick="showPage('posts')">查看全部</button></div>
+        <div id="dashPosts"><div class="loading"><i class="ti ti-loader"></i>加载中...</div></div>
+      </div>
+    </div>
+
+    <!-- 文章管理 -->
+    <div class="page" id="page-posts">
+      <div class="page-header">
+        <div><div class="page-title">文章管理</div></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-secondary" onclick="loadPosts()"><i class="ti ti-refresh"></i> 刷新</button>
+          <button class="btn btn-primary" onclick="showPage('editor'); newPost()"><i class="ti ti-plus"></i> 新建文章</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 id="postsCount">所有文章</h3></div>
+        <div id="postsList"><div class="loading"><i class="ti ti-loader"></i>加载中...</div></div>
+      </div>
+    </div>
+
+    <!-- 编辑器 -->
+    <div class="page" id="page-editor">
+      <div class="page-header">
+        <div><div class="page-title" id="editorTitle">写新文章</div></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-secondary" onclick="showPage('posts')"><i class="ti ti-arrow-left"></i> 返回</button>
+          <button class="btn btn-primary" id="publishBtn" onclick="publishPost()"><i class="ti ti-send"></i> 发布</button>
+        </div>
+      </div>
+      <div class="editor-layout">
+        <div class="editor-main">
+          <input type="text" class="form-control" id="postTitle" placeholder="文章标题..." style="font-size:18px;font-weight:600;padding:14px;" />
+          <div>
+            <div class="editor-toolbar">
+              <button class="tb-btn" onclick="insertMd('**','**')" title="粗体"><b>B</b></button>
+              <button class="tb-btn" onclick="insertMd('*','*')" title="斜体"><i>I</i></button>
+              <button class="tb-btn" onclick="insertMd('~~','~~')" title="删除线"><s>S</s></button>
+              <div class="tb-sep"></div>
+              <button class="tb-btn" onclick="insertMdLine('# ')" title="标题1">H1</button>
+              <button class="tb-btn" onclick="insertMdLine('## ')" title="标题2">H2</button>
+              <button class="tb-btn" onclick="insertMdLine('### ')" title="标题3">H3</button>
+              <div class="tb-sep"></div>
+              <button class="tb-btn" onclick="insertMdLine('- ')" title="列表">≡</button>
+              <button class="tb-btn" onclick="insertMdLine('> ')" title="引用">❝</button>
+              <button class="tb-btn" onclick="insertMd('`','`')" title="行内代码">&lt;&gt;</button>
+              <button class="tb-btn" onclick="insertMdBlock('```\n','\n```')" title="代码块">{ }</button>
+              <div class="tb-sep"></div>
+              <button class="tb-btn" onclick="insertMd('[','](url)')" title="链接">🔗</button>
+              <button class="tb-btn" onclick="insertMd('![alt','](url)')" title="图片">🖼</button>
+              <div class="tb-sep"></div>
+              <button class="tb-btn" onclick="insertMdLine('---')" title="分割线">—</button>
+            </div>
+            <textarea id="markdownEditor" placeholder="开始写作... 支持 Markdown 格式&#10;&#10;# 大标题&#10;## 小标题&#10;**粗体** *斜体*&#10;- 列表项"></textarea>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-header"><h3>文章设置</h3></div>
+            <div class="card-body">
+              <div class="editor-sidebar-section">
+                <label>分类</label>
+                <input type="text" class="form-control" id="postCategory" placeholder="技术、生活、随笔..." />
+              </div>
+              <div class="editor-sidebar-section">
+                <label>标签（逗号分隔）</label>
+                <input type="text" class="form-control" id="postTags" placeholder="Hugo, 博客, 技术" />
+              </div>
+              <div class="editor-sidebar-section">
+                <label>文件名（留空自动生成）</label>
+                <input type="text" class="form-control" id="postFilename" placeholder="auto-generated" />
+              </div>
+              <div class="editor-sidebar-section">
+                <label>封面图 URL（可选）</label>
+                <input type="text" class="form-control" id="postCover" placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Markdown 速查</h3></div>
+            <div class="card-body" style="font-size:12px;color:var(--text-muted);line-height:2.2;">
+              <code># 标题一</code><br>
+              <code>**粗体**</code> <code>*斜体*</code><br>
+              <code>- 列表项</code><br>
+              <code>[链接](URL)</code><br>
+              <code>![图片](URL)</code><br>
+              <code>`行内代码`</code><br>
+              <code>```代码块```</code><br>
+              <code>&gt; 引用</code>
+            </div>
+          </div>
+        </div>
+      </div>
+      <input type="hidden" id="editingPath" />
+      <input type="hidden" id="editingSha" />
+    </div>
+
+    <!-- 外观设置 -->
+    <div class="page" id="page-appearance">
+      <div class="page-header">
+        <div><div class="page-title">外观设置</div><div class="page-subtitle">修改博客头像、背景图、基本信息</div></div>
+        <button class="btn btn-primary" id="saveAppearanceBtn" onclick="saveAppearance()"><i class="ti ti-device-floppy"></i> 保存</button>
+      </div>
+      <div class="settings-grid">
+        <div class="card">
+          <div class="card-header"><h3>头像</h3></div>
+          <div class="card-body">
+            <div class="avatar-upload">
+              <div class="avatar-preview" id="avatarPreview">🎴</div>
+              <div>
+                <label class="upload-btn" for="avatarFile"><i class="ti ti-upload"></i> 选择图片</label>
+                <input type="file" id="avatarFile" accept="image/*" onchange="previewAvatar(this)" />
+                <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">支持 JPG、PNG、WebP<br>建议正方形，200x200px 以上</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>顶部背景图</h3></div>
+          <div class="card-body">
+            <div class="banner-preview" id="bannerPreview">🌸</div>
+            <label class="upload-btn" for="bannerFile"><i class="ti ti-upload"></i> 选择背景图</label>
+            <input type="file" id="bannerFile" accept="image/*" onchange="previewBanner(this)" />
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">建议宽度 1920px 以上，WebP 格式</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>基本信息</h3></div>
+        <div class="card-body">
+          <div class="settings-grid">
+            <div class="settings-item">
+              <label>昵称（author）</label>
+              <input type="text" class="form-control" id="cfgAuthor" placeholder="D-Sketon" />
+            </div>
+            <div class="settings-item">
+              <label>邮箱（email）</label>
+              <input type="text" class="form-control" id="cfgEmail" placeholder="xxx@example.com" />
+            </div>
+            <div class="settings-item">
+              <label>博客描述（description）</label>
+              <input type="text" class="form-control" id="cfgDesc" placeholder="少女祈祷中..." />
+            </div>
+            <div class="settings-item">
+              <label>加载动画文字（preloader）</label>
+              <input type="text" class="form-control" id="cfgPreloader" placeholder="少女祈祷中..." />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 社交链接 -->
+    <div class="page" id="page-social">
+      <div class="page-header">
+        <div><div class="page-title">社交链接</div><div class="page-subtitle">管理博客侧边栏社交媒体链接</div></div>
+        <button class="btn btn-primary" onclick="saveSocial()"><i class="ti ti-device-floppy"></i> 保存</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>已添加的链接</h3><button class="btn btn-secondary btn-sm" onclick="addSocialItem()"><i class="ti ti-plus"></i> 添加</button></div>
+        <div class="card-body" id="socialList">
+          <div class="loading"><i class="ti ti-loader"></i>加载中...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主题色 -->
+    <div class="page" id="page-theme">
+      <div class="page-header">
+        <div><div class="page-title">主题色</div><div class="page-subtitle">调整博客红色系配色方案</div></div>
+        <button class="btn btn-primary" onclick="saveTheme()"><i class="ti ti-device-floppy"></i> 保存</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>红色系配色</h3></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="settings-item">
+              <label>主红色（--red-0）</label>
+              <div class="color-row">
+                <input type="color" id="color0" value="#ff0000" onchange="updateColorPreview(this,'prev0','colorText0')" />
+                <div class="color-preview" id="prev0" style="background:#ff0000;"></div>
+                <input type="text" class="form-control" id="colorText0" value="#ff0000" style="flex:1;" oninput="syncColorPicker(this,'color0','prev0')" />
+              </div>
+            </div>
+            <div class="settings-item">
+              <label>浅红（--red-1）</label>
+              <div class="color-row">
+                <input type="color" id="color1" value="#ff5252" onchange="updateColorPreview(this,'prev1','colorText1')" />
+                <div class="color-preview" id="prev1" style="background:#ff5252;"></div>
+                <input type="text" class="form-control" id="colorText1" value="#ff5252" style="flex:1;" oninput="syncColorPicker(this,'color1','prev1')" />
+              </div>
+            </div>
+            <div class="settings-item">
+              <label>更浅（--red-2）</label>
+              <div class="color-row">
+                <input type="color" id="color2" value="#ff7c7c" onchange="updateColorPreview(this,'prev2','colorText2')" />
+                <div class="color-preview" id="prev2" style="background:#ff7c7c;"></div>
+                <input type="text" class="form-control" id="colorText2" value="#ff7c7c" style="flex:1;" oninput="syncColorPicker(this,'color2','prev2')" />
+              </div>
+            </div>
+            <div class="settings-item">
+              <label>最浅（--red-3）</label>
+              <div class="color-row">
+                <input type="color" id="color3" value="#ffafaf" onchange="updateColorPreview(this,'prev3','colorText3')" />
+                <div class="color-preview" id="prev3" style="background:#ffafaf;"></div>
+                <input type="text" class="form-control" id="colorText3" value="#ffafaf" style="flex:1;" oninput="syncColorPicker(this,'color3','prev3')" />
+              </div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <p style="font-size:13px;color:var(--text-muted);">提示：修改主红色会影响导航栏、按钮、链接等主要元素的颜色。建议保持红色系风格。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分类标签 -->
+    <div class="page" id="page-taxonomy">
+      <div class="page-header">
+        <div><div class="page-title">分类标签</div><div class="page-subtitle">查看博客中使用的分类和标签</div></div>
+        <button class="btn btn-secondary" onclick="loadTaxonomy()"><i class="ti ti-refresh"></i> 刷新</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="card">
+          <div class="card-header"><h3>分类</h3></div>
+          <div class="card-body" id="categoryList"><div class="loading"><i class="ti ti-loader"></i>加载中...</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>标签</h3></div>
+          <div class="card-body" id="tagList"><div class="loading"><i class="ti ti-loader"></i>加载中...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 博客设置 -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div><div class="page-title">博客设置</div></div>
+        <button class="btn btn-primary" onclick="saveSettings()"><i class="ti ti-device-floppy"></i> 保存</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>基本配置（hugo.toml）</h3></div>
+        <div class="card-body">
+          <div class="settings-grid" style="margin-bottom:16px;">
+            <div class="settings-item">
+              <label>博客标题</label>
+              <input type="text" class="form-control" id="siteTitle" />
+            </div>
+            <div class="settings-item">
+              <label>博客地址（baseURL）</label>
+              <input type="text" class="form-control" id="siteURL" />
+            </div>
+          </div>
+          <div class="settings-item">
+            <label>完整配置（hugo.toml 原文）</label>
+            <textarea class="form-control" id="rawConfig" style="min-height:200px;font-family:monospace;font-size:12px;"></textarea>
+          </div>
+          <button class="btn btn-secondary" style="margin-top:10px;" onclick="loadConfig()"><i class="ti ti-refresh"></i> 重新读取</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ===== 配置常量 =====
+const ADMIN_USERNAME = 'xuejian';
+const ADMIN_PASSWORD = '179465';
+const TOKEN_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 天
+
+// ===== 状态 =====
+let TOKEN = '', REPO = '', POST_PATH = 'content/post';
+let allPosts = [], paramsContent = '', paramsSha = '';
+let socialData = {}, newAvatarData = null, newBannerData = null;
+
+// ===== UTF-8 安全的 Base64 =====
+function b64encode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function b64decode(b64) {
+  const bin = atob(b64.replace(/\n/g, ''));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+// ===== YAML Frontmatter 解析（支持列表格式 "- item" 和内联 "[a,b]"） =====
+function parseFrontmatter(content) {
+  if (!content.startsWith('---')) return { body: content, meta: {} };
+  const end = content.indexOf('\n---', 3);
+  if (end === -1) return { body: content, meta: {} };
+  const fmStr = content.slice(4, end);
+  const body = content.slice(end + 4).trim();
+  const meta = {};
+  const lines = fmStr.split('\n');
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    const km = line.match(/^(\w[\w-]*):\s*(.*)/);
+    if (km) {
+      const key = km[1];
+      const val = km[2].trim();
+      if (val === '') {
+        // YAML list format
+        const items = [];
+        i++;
+        while (i < lines.length && /^\s+-\s/.test(lines[i])) {
+          const lm = lines[i].match(/^\s+-\s+["']?(.+?)["']?\s*$/);
+          if (lm) items.push(lm[1]);
+          i++;
+        }
+        meta[key] = items;
+        continue;
+      } else if (val.startsWith('[')) {
+        // Inline array
+        const inner = val.slice(1, val.lastIndexOf(']'));
+        meta[key] = inner.split(',').map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+      } else {
+        meta[key] = val.replace(/^["']|["']$/g, '');
+      }
+    }
+    i++;
+  }
+  return { body, meta };
+}
+
+// ===== 本地存储（30 天过期） =====
+function saveAuth(token, repo, path) {
+  const obj = { token, repo, path, expires: Date.now() + TOKEN_EXPIRY_MS };
+  localStorage.setItem('blog_auth_v2', JSON.stringify(obj));
+}
+function loadAuth() {
+  try {
+    const raw = localStorage.getItem('blog_auth_v2');
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (Date.now() > obj.expires) { localStorage.removeItem('blog_auth_v2'); return null; }
+    return obj;
+  } catch { return null; }
+}
+function clearAuth() {
+  localStorage.removeItem('blog_auth_v2');
+  localStorage.removeItem('blog_token');
+  localStorage.removeItem('blog_repo');
+  localStorage.removeItem('blog_path');
+}
+
+// ===== 登录流程 =====
+function showPasswordStep() {
+  document.getElementById('passwordStep').classList.remove('hidden');
+  document.getElementById('tokenStep').classList.remove('active');
+}
+
+function checkPassword() {
+  const u = document.getElementById('usernameInput').value.trim();
+  const p = document.getElementById('passwordInput').value;
+  if (u !== ADMIN_USERNAME || p !== ADMIN_PASSWORD) {
+    showLoginError('pwError', '用户名或密码错误');
+    return;
+  }
+  // 如果有未过期的 token，直接进入
+  const saved = loadAuth();
+  if (saved) {
+    TOKEN = saved.token; REPO = saved.repo; POST_PATH = saved.path;
+    startApp();
+    return;
+  }
+  // 否则进入 Token 步骤
+  document.getElementById('passwordStep').classList.add('hidden');
+  document.getElementById('tokenStep').classList.add('active');
+  document.getElementById('tokenInput').focus();
+}
+
+async function checkToken() {
+  const btn = document.getElementById('connectBtn');
+  const t = document.getElementById('tokenInput').value.trim();
+  const r = document.getElementById('repoInput').value.trim();
+  const p = document.getElementById('pathInput').value.trim() || 'content/post';
+  if (!t || !r) { showLoginError('tokenError', '请填写 Token 和仓库名'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> 验证中...';
+  try {
+    const res = await fetch(`https://api.github.com/repos/${r}`, {
+      headers: { 'Authorization': `token ${t}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) { showLoginError('tokenError', 'Token 或仓库名有误，请检查权限'); return; }
+    TOKEN = t; REPO = r; POST_PATH = p;
+    saveAuth(t, r, p);
+    startApp();
+  } catch { showLoginError('tokenError', '连接失败，请检查网络'); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="ti ti-plug"></i> 连接仓库'; }
+}
+
+function showLoginError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+function logout() {
+  clearAuth();
+  location.reload();
+}
+
+function startApp() {
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  document.getElementById('repoLabel').textContent = REPO;
+  loadPosts();
+  loadConfig();
+  loadParams();
+}
+
+window.addEventListener('load', () => {
+  // 预填仓库名（即使 token 未过期也需要密码）
+  const saved = loadAuth();
+  if (saved) {
+    document.getElementById('repoInput').value = saved.repo;
+    document.getElementById('pathInput').value = saved.path;
+  }
+});
+
+// Enter 键提交
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+  document.getElementById('tokenInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkToken(); });
+});
+
+// ===== 页面切换 =====
+const pageNavMap = { dashboard: 0, posts: 1, editor: 2, appearance: 3, social: 4, theme: 5, taxonomy: 6, settings: 7 };
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const items = document.querySelectorAll('.nav-item');
+  const idx = pageNavMap[page];
+  if (idx !== undefined && items[idx]) items[idx].classList.add('active');
+  if (page === 'taxonomy') loadTaxonomy();
+  if (page === 'social') loadSocialUI();
+}
+
+// ===== GitHub API =====
+async function apiGet(ep) {
+  const r = await fetch(`https://api.github.com/${ep}`, {
+    headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+  });
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
+}
+async function apiPut(ep, body) {
+  const r = await fetch(`https://api.github.com/${ep}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+  return r.json();
+}
+async function apiDelete(ep, body) {
+  const r = await fetch(`https://api.github.com/${ep}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
+}
+
+// ===== HTML 转义 =====
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ===== 文章管理 =====
+async function loadPosts() {
+  try {
+    const files = await apiGet(`repos/${REPO}/contents/${POST_PATH}`);
+    // 排除 _index.md 等非文章文件
+    allPosts = files.filter(f => f.type === 'file' && f.name.endsWith('.md') && !f.name.startsWith('_'));
+    updateStats();
+    renderPosts(allPosts, 'postsList');
+    renderPosts(allPosts.slice(0, 5), 'dashPosts');
+    document.getElementById('postsCount').textContent = `所有文章（${allPosts.length}）`;
+  } catch(e) {
+    ['postsList','dashPosts'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<div class="empty"><i class="ti ti-folder-off"></i>加载失败：${esc(e.message)}</div>`;
+    });
+  }
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = allPosts.length;
+  document.getElementById('statPublished').textContent = allPosts.length;
+  const latest = allPosts[allPosts.length - 1];
+  document.getElementById('statRecent').textContent = latest
+    ? latest.name.replace('.md', '').slice(0, 16) : '-';
+}
+
+function renderPosts(posts, cid) {
+  const el = document.getElementById(cid);
+  if (!el) return;
+  if (!posts.length) {
+    el.innerHTML = '<div class="empty"><i class="ti ti-file-off"></i>暂无文章</div>';
+    return;
+  }
+  el.innerHTML = posts.map(p => `
+    <div class="post-item">
+      <div class="post-info">
+        <div class="post-name">${esc(p.name.replace('.md',''))}</div>
+        <div class="post-meta">
+          <span>${esc(POST_PATH)}/${esc(p.name)}</span>
+          <span class="badge badge-green">已发布</span>
+        </div>
+      </div>
+      <div class="post-actions">
+        <button class="action-btn" onclick="editPost('${esc(p.path)}')"><i class="ti ti-edit"></i> 编辑</button>
+        <button class="action-btn del" onclick="deletePost('${esc(p.path)}','${esc(p.sha)}','${esc(p.name)}')"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+
+function newPost() {
+  document.getElementById('editorTitle').textContent = '写新文章';
+  ['postTitle','markdownEditor','postCategory','postTags','postFilename','postCover','editingPath','editingSha']
+    .forEach(id => { document.getElementById(id).value = ''; });
+}
+
+async function editPost(path) {
+  showPage('editor');
+  document.getElementById('editorTitle').textContent = '编辑文章';
+  document.getElementById('editingPath').value = path;
+  document.getElementById('markdownEditor').value = '加载中...';
+  try {
+    const file = await apiGet(`repos/${REPO}/contents/${path}`);
+    const raw = b64decode(file.content);
+    const { body, meta } = parseFrontmatter(raw);
+    document.getElementById('postTitle').value = meta.title || path.split('/').pop().replace('.md','');
+    document.getElementById('markdownEditor').value = body;
+    document.getElementById('postFilename').value = path.split('/').pop().replace('.md','');
+    document.getElementById('editingSha').value = file.sha;
+    // 标签
+    const tags = meta.tags;
+    document.getElementById('postTags').value = Array.isArray(tags) ? tags.join(', ') : (tags || '');
+    // 分类
+    const cats = meta.categories;
+    document.getElementById('postCategory').value = Array.isArray(cats) ? (cats[0] || '') : (cats || '');
+    // 封面
+    if (meta.cover) document.getElementById('postCover').value = meta.cover;
+    else document.getElementById('postCover').value = '';
+  } catch(e) {
+    document.getElementById('markdownEditor').value = '';
+    showToast('加载文章失败：' + e.message, 'error');
+  }
+}
+
+async function publishPost() {
+  const title = document.getElementById('postTitle').value.trim();
+  const content = document.getElementById('markdownEditor').value;
+  const category = document.getElementById('postCategory').value.trim();
+  const tags = document.getElementById('postTags').value.trim();
+  const cover = document.getElementById('postCover').value.trim();
+  const filenameInput = document.getElementById('postFilename').value.trim();
+  const existingPath = document.getElementById('editingPath').value;
+  const existingSha = document.getElementById('editingSha').value;
+
+  if (!title) { showToast('请填写文章标题', 'error'); return; }
+
+  const filename = filenameInput
+    || title.toLowerCase().replace(/[^\w一-龥-]/g, '-').replace(/-+/g, '-')
+    || 'post-' + Date.now();
+  const now = new Date().toISOString();
+  const catLines = category ? `\ncategories:\n  - ${category}` : '';
+  const tagLines = tags
+    ? '\ntags:\n' + tags.split(',').map(t => `  - ${t.trim()}`).filter(Boolean).join('\n')
+    : '';
+  const coverLine = cover ? `\ncover: "${cover}"` : '';
+  const fm = `---\ntitle: "${title}"\ndate: ${now}${catLines}${tagLines}${coverLine}\n---\n\n`;
+  const encoded = b64encode(fm + content);
+  const filePath = existingPath || `${POST_PATH}/${filename}.md`;
+  const body = {
+    message: existingPath ? `update: ${title}` : `post: ${title}`,
+    content: encoded
+  };
+  if (existingSha) body.sha = existingSha;
+
+  const btn = document.getElementById('publishBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> 发布中...';
+  try {
+    await apiPut(`repos/${REPO}/contents/${filePath}`, body);
+    showToast('发布成功！Vercel 正在重新部署...', 'success');
+    await loadPosts();
+    showPage('posts');
+  } catch(e) {
+    showToast('发布失败：' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-send"></i> 发布';
+  }
+}
+
+async function deletePost(path, sha, name) {
+  if (!confirm(`确认删除「${name.replace('.md','')}」？\n此操作不可撤销。`)) return;
+  try {
+    await apiDelete(`repos/${REPO}/contents/${path}`, { message: `delete: ${name}`, sha });
+    showToast('已删除', 'success');
+    loadPosts();
+  } catch(e) { showToast('删除失败：' + e.message, 'error'); }
+}
+
+// ===== Markdown 工具栏 =====
+function insertMd(before, after) {
+  const ta = document.getElementById('markdownEditor');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e);
+  ta.value = ta.value.substring(0, s) + before + sel + after + ta.value.substring(e);
+  ta.focus();
+  ta.setSelectionRange(s + before.length, s + before.length + sel.length);
+}
+function insertMdLine(prefix) {
+  const ta = document.getElementById('markdownEditor');
+  const s = ta.selectionStart;
+  const lineStart = ta.value.lastIndexOf('\n', s - 1) + 1;
+  ta.value = ta.value.substring(0, lineStart) + prefix + ta.value.substring(lineStart);
+  ta.focus();
+}
+function insertMdBlock(before, after) {
+  const ta = document.getElementById('markdownEditor');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e);
+  ta.value = ta.value.substring(0, s) + before + sel + after + ta.value.substring(e);
+  ta.focus();
+}
+
+// ===== hugo.toml =====
+async function loadConfig() {
+  try {
+    const file = await apiGet(`repos/${REPO}/contents/hugo.toml`);
+    const content = b64decode(file.content);
+    document.getElementById('rawConfig').value = content;
+    const tm = content.match(/^title\s*=\s*["'](.+?)["']/m);
+    if (tm) document.getElementById('siteTitle').value = tm[1];
+    const um = content.match(/^baseURL\s*=\s*["'](.+?)["']/m);
+    if (um) document.getElementById('siteURL').value = um[1];
+  } catch(e) { /* 页面加载时静默失败 */ }
+}
+
+async function saveSettings() {
+  let content = document.getElementById('rawConfig').value;
+  const title = document.getElementById('siteTitle').value.trim();
+  const url = document.getElementById('siteURL').value.trim();
+  if (title) content = content.replace(/^title\s*=\s*.+/m, `title = "${title}"`);
+  if (url) content = content.replace(/^baseURL\s*=\s*.+/m, `baseURL = "${url}"`);
+  document.getElementById('rawConfig').value = content;
+  try {
+    const file = await apiGet(`repos/${REPO}/contents/hugo.toml`);
+    await apiPut(`repos/${REPO}/contents/hugo.toml`, {
+      message: 'config: update settings',
+      content: b64encode(content),
+      sha: file.sha
+    });
+    showToast('博客设置已保存！', 'success');
+  } catch(e) { showToast('保存失败：' + e.message, 'error'); }
+}
+
+// ===== params.yml =====
+async function loadParams() {
+  try {
+    const file = await apiGet(`repos/${REPO}/contents/config/_default/params.yml`);
+    paramsContent = b64decode(file.content);
+    paramsSha = file.sha;
+    fillAppearanceForm();
+    parseSocial();
+    fillThemeColors();
+  } catch(e) { /* 静默失败 */ }
+}
+
+async function saveParams(newContent, msg) {
+  const file = await apiGet(`repos/${REPO}/contents/config/_default/params.yml`);
+  await apiPut(`repos/${REPO}/contents/config/_default/params.yml`, {
+    message: msg, content: b64encode(newContent), sha: file.sha
+  });
+  paramsContent = newContent;
+  const f2 = await apiGet(`repos/${REPO}/contents/config/_default/params.yml`);
+  paramsSha = f2.sha;
+}
+
+function fillAppearanceForm() {
+  const get = (re) => { const m = paramsContent.match(re); return m ? m[1].trim() : ''; };
+  document.getElementById('cfgAuthor').value   = get(/^author:\s*(.+)/m);
+  document.getElementById('cfgEmail').value    = get(/^email:\s*(.+)/m);
+  document.getElementById('cfgDesc').value     = get(/^description:\s*["']?(.+?)["']?\s*$/m);
+  // preloader text (zh-CN 行)
+  const pre = paramsContent.match(/^preloader:[\s\S]*?zh-CN:\s*(.+)/m);
+  if (pre) document.getElementById('cfgPreloader').value = pre[1].trim();
+}
+
+// ===== 外观 =====
+function previewAvatar(input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    newAvatarData = { base64: e.target.result.split(',')[1], name: input.files[0].name };
+    document.getElementById('avatarPreview').innerHTML = `<img src="${e.target.result}" alt="avatar" />`;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function previewBanner(input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    newBannerData = { base64: e.target.result.split(',')[1], name: input.files[0].name };
+    document.getElementById('bannerPreview').innerHTML = `<img src="${e.target.result}" alt="banner" />`;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+async function saveAppearance() {
+  const btn = document.getElementById('saveAppearanceBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> 保存中...';
+  try {
+    let content = paramsContent;
+    // 上传头像
+    if (newAvatarData) {
+      const ext = newAvatarData.name.split('.').pop().toLowerCase();
+      const avatarPath = `static/avatar/avatar.${ext}`;
+      let sha = '';
+      try { sha = (await apiGet(`repos/${REPO}/contents/${avatarPath}`)).sha; } catch {}
+      const body = { message: 'update: avatar', content: newAvatarData.base64 };
+      if (sha) body.sha = sha;
+      await apiPut(`repos/${REPO}/contents/${avatarPath}`, body);
+      content = content.replace(/^avatar:\s*.+/m, `avatar: "avatar.${ext}"`);
+    }
+    // 上传背景图
+    if (newBannerData) {
+      const ext = newBannerData.name.split('.').pop().toLowerCase();
+      const bannerPath = `static/images/banner.${ext}`;
+      let sha = '';
+      try { sha = (await apiGet(`repos/${REPO}/contents/${bannerPath}`)).sha; } catch {}
+      const body = { message: 'update: banner', content: newBannerData.base64 };
+      if (sha) body.sha = sha;
+      await apiPut(`repos/${REPO}/contents/${bannerPath}`, body);
+      content = content.replace(/^banner:\s*.+/m, `banner: "images/banner.${ext}"`);
+    }
+    // 基本信息
+    const author = document.getElementById('cfgAuthor').value.trim();
+    const email  = document.getElementById('cfgEmail').value.trim();
+    const desc   = document.getElementById('cfgDesc').value.trim();
+    const pre    = document.getElementById('cfgPreloader').value.trim();
+    if (author) content = content.replace(/^author:\s*.+/m, `author: ${author}`);
+    if (email)  content = content.replace(/^email:\s*.+/m, `email: ${email}`);
+    if (desc)   content = content.replace(/^description:\s*.+/m, `description: "${desc}"`);
+    // 替换 preloader zh-CN 文字
+    if (pre) {
+      content = content.replace(
+        /(^preloader:[\s\S]*?zh-CN:\s*).+/m,
+        `$1${pre}`
+      );
+    }
+    await saveParams(content, 'config: update appearance');
+    showToast('外观设置已保存！正在部署...', 'success');
+    newAvatarData = null; newBannerData = null;
+  } catch(e) {
+    showToast('保存失败：' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-device-floppy"></i> 保存';
+  }
+}
+
+// ===== 社交链接（逐行解析，避免正则 \Z 问题） =====
+const socialIcons = {
+  email:'ti-mail', github:'ti-brand-github', twitter:'ti-brand-twitter', bluesky:'ti-brand-bluesky',
+  bilibili:'ti-brand-bilibili', weibo:'ti-brand-weibo', zhihu:'ti-brand-zhihu',
+  youtube:'ti-brand-youtube', instagram:'ti-brand-instagram', telegram:'ti-brand-telegram',
+  discord:'ti-brand-discord', steam:'ti-brand-steam', linkedin:'ti-brand-linkedin',
+  facebook:'ti-brand-facebook', pinterest:'ti-brand-pinterest', reddit:'ti-brand-reddit',
+};
+
+function parseSocial() {
+  socialData = {};
+  const lines = paramsContent.split('\n');
+  let inSocial = false;
+  for (const line of lines) {
+    if (/^social:\s*$/.test(line)) { inSocial = true; continue; }
+    if (inSocial) {
+      if (/^\w/.test(line)) { inSocial = false; break; } // 遇到新顶级 key
+      if (line.trim().startsWith('#')) continue;          // 跳过注释行
+      const m = line.match(/^\s+(\w+):\s*(.+)/);
+      if (m) socialData[m[1].trim()] = m[2].trim();
+    }
+  }
+}
+
+function loadSocialUI() {
+  const el = document.getElementById('socialList');
+  if (!Object.keys(socialData).length) {
+    el.innerHTML = `<div class="empty"><i class="ti ti-share-off"></i>暂无社交链接
+      <br><button class="btn btn-secondary btn-sm" style="margin-top:12px;" onclick="addSocialItem()">
+        <i class="ti ti-plus"></i> 添加
+      </button></div>`;
+    return;
+  }
+  el.innerHTML = Object.entries(socialData).map(([k,v]) => `
+    <div class="social-item" id="social-row-${esc(k)}">
+      <div class="social-icon"><i class="ti ${socialIcons[k] || 'ti-link'}"></i></div>
+      <div class="social-name">${esc(k)}</div>
+      <input type="text" class="form-control" value="${esc(v)}" id="socialVal-${esc(k)}" style="flex:1;" />
+      <button class="social-remove" onclick="removeSocial('${esc(k)}')"><i class="ti ti-x"></i></button>
+    </div>`).join('');
+}
+
+function addSocialItem() {
+  const key = prompt('输入平台名称（如 github, bilibili, twitter）：');
+  if (!key || !key.trim()) return;
+  const k = key.trim().toLowerCase();
+  const url = prompt(`输入 ${k} 的链接 URL：`);
+  if (!url || !url.trim()) return;
+  socialData[k] = url.trim();
+  loadSocialUI();
+}
+
+function removeSocial(key) {
+  if (!confirm(`确认删除 ${key} 链接？`)) return;
+  delete socialData[key];
+  loadSocialUI();
+}
+
+async function saveSocial() {
+  // 同步输入框到 socialData
+  for (const k of Object.keys(socialData)) {
+    const input = document.getElementById(`socialVal-${k}`);
+    if (input) socialData[k] = input.value.trim();
+  }
+  // 重建 social 块（只保留有值的项）
+  const lines = paramsContent.split('\n');
+  const newLines = [];
+  let inSocial = false;
+  let socialInserted = false;
+  for (const line of lines) {
+    if (/^social:\s*$/.test(line)) {
+      inSocial = true;
+      newLines.push('social:');
+      for (const [k, v] of Object.entries(socialData)) {
+        if (v) newLines.push(`  ${k}: ${v}`);
+      }
+      socialInserted = true;
+      continue;
+    }
+    if (inSocial) {
+      if (/^\w/.test(line)) { inSocial = false; newLines.push(line); }
+      // 跳过旧 social 块内容（注释和配置行）
+      continue;
+    }
+    newLines.push(line);
+  }
+  const newContent = newLines.join('\n');
+  try {
+    await saveParams(newContent, 'config: update social links');
+    showToast('社交链接已保存！', 'success');
+  } catch(e) { showToast('保存失败：' + e.message, 'error'); }
+}
+
+// ===== 主题色 =====
+function fillThemeColors() {
+  const pairs = [
+    ['--red-0','color0','prev0','colorText0'],
+    ['--red-1','color1','prev1','colorText1'],
+    ['--red-2','color2','prev2','colorText2'],
+    ['--red-3','color3','prev3','colorText3'],
+  ];
+  pairs.forEach(([varName, pickId, prevId, textId]) => {
+    const re = new RegExp(varName.replace(/-/g,'\\-') + ":\\s*['\"]?(#[0-9a-fA-F]{6})['\"]?");
+    const m = paramsContent.match(re);
+    if (m) {
+      const col = m[1];
+      document.getElementById(pickId).value = col;
+      document.getElementById(prevId).style.background = col;
+      document.getElementById(textId).value = col;
+    }
+  });
+}
+
+function updateColorPreview(input, prevId, textId) {
+  document.getElementById(prevId).style.background = input.value;
+  document.getElementById(textId).value = input.value;
+}
+function syncColorPicker(input, pickerId, prevId) {
+  if (/^#[0-9a-fA-F]{6}$/.test(input.value)) {
+    document.getElementById(pickerId).value = input.value;
+    document.getElementById(prevId).style.background = input.value;
+  }
+}
+
+async function saveTheme() {
+  const vars = [
+    ['--red-0', document.getElementById('colorText0').value],
+    ['--red-1', document.getElementById('colorText1').value],
+    ['--red-2', document.getElementById('colorText2').value],
+    ['--red-3', document.getElementById('colorText3').value],
+  ];
+  let content = paramsContent;
+  for (const [varName, val] of vars) {
+    if (!/^#[0-9a-fA-F]{6}$/.test(val)) continue;
+    const re = new RegExp("(" + varName.replace(/-/g,'\\-') + ":\\s*)['\"]?#[0-9a-fA-F]{6}['\"]?", 'g');
+    content = content.replace(re, `$1'${val}'`);
+  }
+  try {
+    await saveParams(content, 'config: update theme colors');
+    showToast('主题色已保存！', 'success');
+  } catch(e) { showToast('保存失败：' + e.message, 'error'); }
+}
+
+// ===== 分类标签（逐个读取文章 frontmatter） =====
+async function loadTaxonomy() {
+  document.getElementById('categoryList').innerHTML = '<div class="loading"><i class="ti ti-loader"></i>读取中...</div>';
+  document.getElementById('tagList').innerHTML = '<div class="loading"><i class="ti ti-loader"></i>读取中...</div>';
+  const cats = {}, tags = {};
+  for (const post of allPosts) {
+    try {
+      const file = await apiGet(`repos/${REPO}/contents/${post.path}`);
+      const { meta } = parseFrontmatter(b64decode(file.content));
+      const postCats = Array.isArray(meta.categories) ? meta.categories : (meta.categories ? [meta.categories] : []);
+      postCats.forEach(c => { if (c) cats[c] = (cats[c] || 0) + 1; });
+      const postTags = Array.isArray(meta.tags) ? meta.tags : (meta.tags ? meta.tags.split(',').map(t => t.trim()) : []);
+      postTags.forEach(t => { if (t) tags[t] = (tags[t] || 0) + 1; });
+    } catch {}
+  }
+  const catEl = document.getElementById('categoryList');
+  const tagEl = document.getElementById('tagList');
+  catEl.innerHTML = Object.keys(cats).length
+    ? '<div style="padding:4px 0;">' + Object.entries(cats).map(([k,v]) =>
+        `<span class="tag-item">${esc(k)} <span style="opacity:0.6;">${v}</span></span>`).join('') + '</div>'
+    : '<div class="empty"><i class="ti ti-folder-off"></i>暂无分类</div>';
+  tagEl.innerHTML = Object.keys(tags).length
+    ? '<div style="padding:4px 0;">' + Object.entries(tags).map(([k,v]) =>
+        `<span class="tag-item">${esc(k)} <span style="opacity:0.6;">${v}</span></span>`).join('') + '</div>'
+    : '<div class="empty"><i class="ti ti-tag-off"></i>暂无标签</div>';
+}
+
+// ===== Toast 提示 =====
+let toastTimer = null;
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = type + ' show';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = ''; }, 3500);
+}
+</script>
+</body>
+</html>
