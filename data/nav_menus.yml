@@ -14,6 +14,9 @@
     - name: 日常记录
       category: /archives/
       background: images/banner.webp
+    - name: 照片记忆
+      category: /archives/
+      background: images/banner.webp
 - name: 更多
   items:
     - name: 归档
