@@ -1,6 +1,6 @@
-- name: 文章
+- name: 技术
   items:
-    - name: 技术笔记
+    - name: 资源网站
       url: /archives/
       background: images/banner.webp
     - name: 生活随笔
