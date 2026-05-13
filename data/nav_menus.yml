@@ -8,7 +8,8 @@
       background: images/banner.webp
 - name: 生活
   items:
-    - name: 新子项
+    - name: 我的故事
+      url: /archives/
       background: images/banner.webp
     - name: 新子项
       background: images/banner.webp
