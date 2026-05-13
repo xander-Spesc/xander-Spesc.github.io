@@ -1,7 +1,7 @@
 - name: 文章
   items:
     - name: 技术笔记
-      category: tech
+      url: /archives/
       background: images/banner.webp
     - name: 生活随笔
       category: life
