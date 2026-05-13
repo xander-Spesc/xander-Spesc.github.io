@@ -6,14 +6,14 @@
     - name: 生活随笔
       category: life
       background: images/banner.webp
+- name: 生活
+  items:
+    - name: 新子项
+      background: images/banner.webp
+    - name: 新子项
+      background: images/banner.webp
 - name: 更多
   items:
     - name: 归档
       url: /archives/
-      background: images/banner.webp
-    - name: 关于我
-      url: /about/
-      background: images/banner.webp
-    - name: 友情链接
-      url: /friend/
       background: images/banner.webp
