@@ -1,9 +1,6 @@
 ---
-title: 中文測試
-# description: 中文測試
-
-date: 2022-06-09T20:12:52+08:00
-lastmod: 2022-06-09T20:12:52+08:00
+title: "中文測試"
+date: 2026-05-13T02:41:21.895Z
 ---
 
 This is a Chinese test post.
