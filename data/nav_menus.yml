@@ -6,6 +6,8 @@
     - name: 生活随笔
       category: life
       background: images/banner.webp
+    - name: 新子项
+      background: images/banner.webp
 - name: 生活
   items:
     - name: 我的故事
@@ -15,6 +17,9 @@
       category: /archives/
       background: images/banner.webp
     - name: 照片记忆
+      category: /archives/
+      background: images/banner.webp
+    - name: 自己瞎想
       category: /archives/
       background: images/banner.webp
 - name: 更多
