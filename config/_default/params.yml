@@ -26,9 +26,9 @@ monthFormat: "2006-01"
 dateFormat: "2006-01-02"
 timeFormat: "2006-01-02 15:04:05"
 
-author: D-Sketon
-email: xxx@example.com
-description: "少女祈祷中..."
+author: xuejian
+email: 1794652812@qq.com
+description: "巴拉巴拉"
 # subtitle: "少女祈祷中..."
 subtitle:
   typing:
@@ -473,7 +473,7 @@ algolia_search:
 preloader:
   enable: true
   text: 
-    zh-CN: 少女祈祷中...
+    zh-CN: 阿巴阿巴
     zh-TW: 少女祈禱中...
     en: Loading...
     ja: 少女祈祷中...
