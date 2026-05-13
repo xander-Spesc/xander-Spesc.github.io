@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>博客后台 · 灵梦</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
 <style>
 :root {
   --red: #c0392b;
@@ -283,6 +284,9 @@ input[type="file"] { display: none; }
       <div class="nav-item" onclick="showPage('taxonomy')">
         <i class="ti ti-tags"></i> 分类标签
       </div>
+      <div class="nav-item" onclick="showPage('menus')">
+        <i class="ti ti-layout-navbar"></i> 菜单管理
+      </div>
       <div class="nav-item" onclick="showPage('settings')">
         <i class="ti ti-settings"></i> 博客设置
       </div>
@@ -376,8 +380,9 @@ input[type="file"] { display: none; }
             <div class="card-header"><h3>文章设置</h3></div>
             <div class="card-body">
               <div class="editor-sidebar-section">
-                <label>分类</label>
-                <input type="text" class="form-control" id="postCategory" placeholder="技术、生活、随笔..." />
+                <label>分类（从菜单选择或手动输入）</label>
+                <input type="text" class="form-control" id="postCategory" list="categoryDatalist" placeholder="从下方选择或手动输入..." />
+                <datalist id="categoryDatalist"></datalist>
               </div>
               <div class="editor-sidebar-section">
                 <label>标签（逗号分隔）</label>
@@ -576,6 +581,32 @@ input[type="file"] { display: none; }
       </div>
     </div>
 
+    <!-- 菜单管理 -->
+    <div class="page" id="page-menus">
+      <div class="page-header">
+        <div><div class="page-title">菜单管理</div><div class="page-subtitle">管理导航栏菜单及下拉子项，保存后自动部署</div></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-secondary" onclick="addMenu()"><i class="ti ti-plus"></i> 添加菜单</button>
+          <button class="btn btn-primary" id="saveMenusBtn" onclick="saveMenus()"><i class="ti ti-device-floppy"></i> 保存</button>
+        </div>
+      </div>
+      <!-- home 固定提示 -->
+      <div class="card" style="margin-bottom:16px;border-color:var(--red-light);">
+        <div class="card-body" style="padding:14px 20px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="stat-icon" style="width:38px;height:38px;flex-shrink:0;"><i class="ti ti-home"></i></div>
+            <div>
+              <div style="font-size:14px;font-weight:600;">home（固定，不可删除）</div>
+              <div style="font-size:12px;color:var(--text-muted);">始终排在第一位，点击直接跳转主页，不参与下方菜单管理</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="menusList">
+        <div class="loading"><i class="ti ti-loader"></i>加载中...</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -731,6 +762,7 @@ function startApp() {
   loadPosts();
   loadConfig();
   loadParams();
+  loadMenus();
 }
 
 window.addEventListener('load', () => {
@@ -749,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===== 页面切换 =====
-const pageNavMap = { dashboard: 0, posts: 1, editor: 2, appearance: 3, social: 4, theme: 5, taxonomy: 6, settings: 7 };
+const pageNavMap = { dashboard: 0, posts: 1, editor: 2, appearance: 3, social: 4, theme: 5, taxonomy: 6, menus: 7, settings: 8 };
 
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1262,6 +1294,211 @@ async function loadTaxonomy() {
     ? '<div style="padding:4px 0;">' + Object.entries(tags).map(([k,v]) =>
         `<span class="tag-item">${esc(k)} <span style="opacity:0.6;">${v}</span></span>`).join('') + '</div>'
     : '<div class="empty"><i class="ti ti-tag-off"></i>暂无标签</div>';
+}
+
+// ===== 菜单管理 =====
+let navMenus = [];
+
+async function loadMenus() {
+  try {
+    const file = await apiGet(`repos/${REPO}/contents/data/nav_menus.yml`);
+    navMenus = jsyaml.load(b64decode(file.content)) || [];
+  } catch { navMenus = []; }
+  renderMenus();
+  populateCategoryDatalist();
+}
+
+function renderMenus() {
+  const el = document.getElementById('menusList');
+  if (!el) return;
+  if (!navMenus.length) {
+    el.innerHTML = `<div class="empty"><i class="ti ti-layout-navbar-collapse"></i>暂无菜单<br><small style="margin-top:8px;display:block;color:var(--text-muted);">点击右上角「添加菜单」开始</small></div>`;
+    return;
+  }
+  el.innerHTML = navMenus.map((menu, mi) => `
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+          <i class="ti ti-menu-2" style="color:var(--text-muted);flex-shrink:0;"></i>
+          <input type="text" class="form-control" value="${esc(menu.name)}" id="menuName-${mi}" style="max-width:200px;" placeholder="菜单名称" />
+          <span style="color:var(--text-muted);font-size:12px;">${(menu.items||[]).length} 个子项</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="btn btn-secondary btn-sm" onclick="moveMenu(${mi},-1)" title="上移"><i class="ti ti-arrow-up"></i></button>
+          <button class="btn btn-secondary btn-sm" onclick="moveMenu(${mi},1)" title="下移"><i class="ti ti-arrow-down"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="removeMenu(${mi})"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      <div class="card-body" style="padding-bottom:14px;">
+        <div id="menuItems-${mi}">${renderMenuItems(menu.items||[], mi)}</div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:12px;" onclick="addMenuItem(${mi})">
+          <i class="ti ti-plus"></i> 添加子项
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function renderMenuItems(items, mi) {
+  if (!items.length) return '<div style="color:var(--text-muted);font-size:13px;padding:4px 0;">暂无子项，点击下方添加</div>';
+  return items.map((item, ii) => `
+    <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;background:var(--bg);">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">子项名称</label>
+          <input type="text" class="form-control" value="${esc(item.name||'')}" id="itemName-${mi}-${ii}" placeholder="如：技术笔记" />
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">链接类型</label>
+          <select class="form-control" id="itemType-${mi}-${ii}" onchange="toggleItemType(${mi},${ii},this.value)" style="padding:10px 14px;">
+            <option value="category" ${!item.url?'selected':''}>分类页</option>
+            <option value="url" ${item.url?'selected':''}>自定义 URL</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div id="itemCatWrap-${mi}-${ii}" ${item.url?'style="display:none"':''}>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">分类标识（category slug）</label>
+          <input type="text" class="form-control" value="${esc(item.category||'')}" id="itemCat-${mi}-${ii}" placeholder="tech / life / thoughts" />
+        </div>
+        <div id="itemUrlWrap-${mi}-${ii}" ${!item.url?'style="display:none"':''}>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">自定义 URL</label>
+          <input type="text" class="form-control" value="${esc(item.url||'')}" id="itemUrl-${mi}-${ii}" placeholder="/archives/ 或 /about/" />
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">背景图</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="text" class="form-control" value="${esc(item.background||'')}" id="itemBg-${mi}-${ii}" placeholder="images/banner.webp" style="flex:1;" />
+            <label class="upload-btn" for="itemBgFile-${mi}-${ii}" style="flex-shrink:0;padding:8px 10px;" title="上传背景图"><i class="ti ti-photo-up"></i></label>
+            <input type="file" id="itemBgFile-${mi}-${ii}" accept="image/*" onchange="uploadItemBg(this,${mi},${ii})" />
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:6px;">
+        <button class="action-btn" onclick="moveMenuItem(${mi},${ii},-1)" title="上移"><i class="ti ti-arrow-up"></i></button>
+        <button class="action-btn" onclick="moveMenuItem(${mi},${ii},1)" title="下移"><i class="ti ti-arrow-down"></i></button>
+        <button class="action-btn del" onclick="removeMenuItem(${mi},${ii})"><i class="ti ti-trash"></i> 删除</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleItemType(mi, ii, type) {
+  document.getElementById(`itemCatWrap-${mi}-${ii}`).style.display = type === 'category' ? '' : 'none';
+  document.getElementById(`itemUrlWrap-${mi}-${ii}`).style.display = type === 'url' ? '' : 'none';
+}
+
+function addMenu() {
+  navMenus.push({ name: '新菜单', items: [] });
+  renderMenus();
+  showPage('menus');
+}
+
+function removeMenu(mi) {
+  if (!confirm(`确认删除「${navMenus[mi].name}」及其所有子项？`)) return;
+  navMenus.splice(mi, 1);
+  renderMenus();
+}
+
+function moveMenu(mi, dir) {
+  const ti = mi + dir;
+  if (ti < 0 || ti >= navMenus.length) return;
+  [navMenus[mi], navMenus[ti]] = [navMenus[ti], navMenus[mi]];
+  renderMenus();
+}
+
+function addMenuItem(mi) {
+  if (!navMenus[mi].items) navMenus[mi].items = [];
+  navMenus[mi].items.push({ name: '新子项', category: '', background: 'images/banner.webp' });
+  renderMenus();
+}
+
+function removeMenuItem(mi, ii) {
+  navMenus[mi].items.splice(ii, 1);
+  renderMenus();
+}
+
+function moveMenuItem(mi, ii, dir) {
+  const items = navMenus[mi].items;
+  const ti = ii + dir;
+  if (ti < 0 || ti >= items.length) return;
+  [items[ii], items[ti]] = [items[ti], items[ii]];
+  renderMenus();
+}
+
+async function uploadItemBg(input, mi, ii) {
+  if (!input.files[0]) return;
+  const file = input.files[0];
+  const ext = file.name.split('.').pop().toLowerCase();
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result.split(',')[1];
+    const fname = `nav-${Date.now()}.${ext}`;
+    const path = `static/images/nav/${fname}`;
+    try {
+      await apiPut(`repos/${REPO}/contents/${path}`, { message: 'upload: nav background', content: base64 });
+      const url = `images/nav/${fname}`;
+      document.getElementById(`itemBg-${mi}-${ii}`).value = url;
+      showToast('背景图上传成功！', 'success');
+    } catch(e) { showToast('上传失败：' + e.message, 'error'); }
+  };
+  reader.readAsDataURL(file);
+}
+
+function collectMenuData() {
+  return navMenus.map((menu, mi) => {
+    const name = document.getElementById(`menuName-${mi}`)?.value?.trim() || menu.name;
+    const items = (menu.items || []).map((item, ii) => {
+      const n   = document.getElementById(`itemName-${mi}-${ii}`)?.value?.trim() || '';
+      const t   = document.getElementById(`itemType-${mi}-${ii}`)?.value || 'category';
+      const cat = document.getElementById(`itemCat-${mi}-${ii}`)?.value?.trim() || '';
+      const url = document.getElementById(`itemUrl-${mi}-${ii}`)?.value?.trim() || '';
+      const bg  = document.getElementById(`itemBg-${mi}-${ii}`)?.value?.trim() || '';
+      if (!n) return null;
+      const obj = { name: n };
+      if (t === 'url' && url) obj.url = url;
+      else if (cat) obj.category = cat;
+      if (bg) obj.background = bg;
+      return obj;
+    }).filter(Boolean);
+    return { name, items };
+  }).filter(m => m.name);
+}
+
+function populateCategoryDatalist() {
+  const dl = document.getElementById('categoryDatalist');
+  if (!dl) return;
+  dl.innerHTML = '';
+  navMenus.forEach(menu => {
+    (menu.items || []).forEach(item => {
+      if (item.category) {
+        const opt = document.createElement('option');
+        opt.value = item.category;
+        opt.label = `${menu.name} → ${item.name}`;
+        dl.appendChild(opt);
+      }
+    });
+  });
+}
+
+async function saveMenus() {
+  const btn = document.getElementById('saveMenusBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> 保存中...';
+  const data = collectMenuData();
+  const yaml = jsyaml.dump(data, { indent: 2, lineWidth: -1 });
+  try {
+    let sha = '';
+    try { sha = (await apiGet(`repos/${REPO}/contents/data/nav_menus.yml`)).sha; } catch {}
+    const body = { message: 'config: update nav menus', content: b64encode(yaml) };
+    if (sha) body.sha = sha;
+    await apiPut(`repos/${REPO}/contents/data/nav_menus.yml`, body);
+    navMenus = data;
+    populateCategoryDatalist();
+    showToast('菜单已保存！Vercel 正在重新部署...', 'success');
+  } catch(e) { showToast('保存失败：' + e.message, 'error'); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-device-floppy"></i> 保存';
+  }
 }
 
 // ===== Toast 提示 =====

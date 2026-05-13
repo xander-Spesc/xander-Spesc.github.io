@@ -1,0 +1,19 @@
+- name: 文章
+  items:
+    - name: 技术笔记
+      category: tech
+      background: images/banner.webp
+    - name: 生活随笔
+      category: life
+      background: images/banner.webp
+- name: 更多
+  items:
+    - name: 归档
+      url: /archives/
+      background: images/banner.webp
+    - name: 关于我
+      url: /about/
+      background: images/banner.webp
+    - name: 友情链接
+      url: /friend/
+      background: images/banner.webp
