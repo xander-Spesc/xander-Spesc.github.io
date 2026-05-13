@@ -11,7 +11,8 @@
     - name: 我的故事
       url: /archives/
       background: images/banner.webp
-    - name: 新子项
+    - name: 日常记录
+      category: /archives/
       background: images/banner.webp
 - name: 更多
   items:
