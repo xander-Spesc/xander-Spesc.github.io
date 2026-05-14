@@ -678,13 +678,7 @@ input[type="file"] { display: none; }
     <div class="mb-header">
       <h3>📷 COS 媒体库</h3>
       <div class="mb-toolbar">
-        <select class="mb-folder-select" id="mbFolderSelect" onchange="loadMbFiles()">
-          <option value="">全部文件</option>
-          <option value="images/posts/">文章图片</option>
-          <option value="images/">背景图</option>
-          <option value="avatar/">头像</option>
-          <option value="images/nav/">导航背景</option>
-        </select>
+        <input type="text" id="mbSearch" placeholder="搜索文件名..." class="mb-folder-select" style="width:160px;" oninput="mbFilterGrid(this.value)">
         <label class="btn btn-secondary" for="mbUploadInput" style="margin:0;cursor:pointer"><i class="ti ti-upload"></i> 上传</label>
         <input type="file" id="mbUploadInput" accept="image/*,video/*" style="display:none" onchange="mbUploadNew(this)">
         <button class="btn btn-secondary" onclick="closeMb()">取消</button>
@@ -1186,14 +1180,15 @@ async function testCosConfig() {
 // ===== COS 媒体库 =====
 let _mbCallback = null;
 let _mbSelected = null;
+let _mbUploadFolder = 'images/posts/';
 
 function openMb(folder, callback) {
   _mbCallback = callback;
   _mbSelected = null;
+  _mbUploadFolder = folder || 'images/posts/';
   document.getElementById('mbConfirmBtn').disabled = true;
   document.getElementById('mbSelectedInfo').textContent = '从上方选择图片，或点击"上传"添加新文件';
-  const sel = document.getElementById('mbFolderSelect');
-  sel.value = folder || '';
+  document.getElementById('mbSearch').value = '';
   document.getElementById('mbMask').classList.add('show');
   loadMbFiles();
 }
@@ -1207,14 +1202,13 @@ function closeMb() {
 async function loadMbFiles() {
   const grid = document.getElementById('mbGrid');
   grid.innerHTML = '<div class="mb-empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;font-size:24px"></i><span>加载中...</span></div>';
-  const folder = document.getElementById('mbFolderSelect').value;
   try {
     const cfg = _cosGetCfg();
     if (!cfg.SecretId || !cfg.SecretKey) {
       grid.innerHTML = '<div class="mb-empty"><i class="ti ti-alert-circle" style="font-size:24px"></i><span>请先在博客设置中配置 COS 密钥</span></div>';
       return;
     }
-    const allFiles = await _cosList(folder);
+    const allFiles = await _cosList('');
     const files = allFiles.filter(f => !f.Key.endsWith('/'));
     if (!files.length) {
       grid.innerHTML = '<div class="mb-empty"><i class="ti ti-photo-off" style="font-size:24px"></i><span>暂无文件，点击"上传"添加</span></div>';
@@ -1251,10 +1245,16 @@ function mbConfirm() {
   closeMb();
 }
 
+function mbFilterGrid(kw) {
+  document.querySelectorAll('.mb-item').forEach(el => {
+    const name = el.title.toLowerCase();
+    el.style.display = (!kw || name.includes(kw.toLowerCase())) ? '' : 'none';
+  });
+}
 async function mbUploadNew(input) {
   if (!input.files[0]) return;
   const file = input.files[0];
-  const folder = document.getElementById('mbFolderSelect').value || 'images/posts/';
+  const folder = _mbUploadFolder;
   const ts = Date.now();
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const key = `${folder}${ts}_${safeName}`;
