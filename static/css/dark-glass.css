@@ -4,9 +4,17 @@
 
 #site-bg { display: none !important; }
 
-/* ── Base ── */
-body  { background: #fff !important; }
-.main { background: transparent !important; }
+/* ── Base: everything white, no bleed-through ── */
+body,
+html,
+#container,
+#wrap,
+#content,
+#main,
+.main {
+  background: #fff !important;
+  background-image: none !important;
+}
 
 /* ── Fixed white-glass navigation ── */
 #header-nav {

@@ -12,23 +12,8 @@
   {{- end -}}
 {{- end -}}
 
-{{/* Compute background source for full-page bg layer */}}
-{{- $bgSrc := .Params.banner | default .Params.cover -}}
-{{- if and (not $bgSrc) $catBg -}}{{- $bgSrc = $catBg -}}{{- end -}}
-{{- if not $bgSrc -}}{{- $bgSrc = .Site.Params.banner -}}{{- end -}}
-{{- $bgIsVideo := and $bgSrc (or (strings.HasSuffix $bgSrc ".mp4") (strings.HasSuffix $bgSrc ".webm")) -}}
-
 <link rel="stylesheet" href="{{ "/css/nav-dropdown.css" | relURL }}">
 <link rel="stylesheet" href="{{ "/css/dark-glass.css" | relURL }}">
-
-{{/* Fixed full-page blurred background layer */}}
-{{- if and $bgSrc $bgIsVideo -}}
-<video id="site-bg" autoplay muted loop playsinline>
-  <source src="{{ $bgSrc | relURL }}" type="video/mp4">
-</video>
-{{- else -}}
-<div id="site-bg"{{ if $bgSrc }} style="background-image:url('{{ $bgSrc | relURL }}');"{{ end }}></div>
-{{- end -}}
 
 <div id="header-nav">
   <nav id="main-nav" aria-label="Primary navigation">
