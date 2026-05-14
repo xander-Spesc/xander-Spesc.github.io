@@ -157,6 +157,25 @@ body { font-family: 'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; backg
 .media-dialog-tab.active { color:var(--red); border-bottom-color:var(--red); }
 .media-dialog-panel { display:none; } .media-dialog-panel.active { display:block; }
 .media-dialog-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }
+/* COS 媒体库 */
+.mb-mask { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center; }
+.mb-mask.show { display:flex; }
+.mb-box { background:#fff; border-radius:14px; width:860px; max-width:95vw; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 12px 48px rgba(0,0,0,0.22); overflow:hidden; }
+.mb-header { display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.mb-header h3 { margin:0; font-size:16px; flex:1; }
+.mb-toolbar { display:flex; gap:8px; align-items:center; }
+.mb-folder-select { padding:6px 10px; border:1px solid var(--border); border-radius:7px; font-size:13px; background:#fff; cursor:pointer; }
+.mb-grid { flex:1; overflow-y:auto; padding:16px; display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; min-height:300px; }
+.mb-item { position:relative; border-radius:8px; overflow:hidden; border:2px solid transparent; cursor:pointer; aspect-ratio:1; background:var(--bg); transition:border-color 0.15s; }
+.mb-item:hover { border-color:var(--red-light); }
+.mb-item.selected { border-color:var(--red); }
+.mb-item img { width:100%; height:100%; object-fit:cover; display:block; }
+.mb-item-name { position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.55); color:#fff; font-size:10px; padding:3px 5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mb-item-check { position:absolute; top:5px; right:5px; background:var(--red); color:#fff; border-radius:50%; width:20px; height:20px; display:none; align-items:center; justify-content:center; font-size:12px; }
+.mb-item.selected .mb-item-check { display:flex; }
+.mb-empty { grid-column:1/-1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); gap:8px; padding:40px 0; font-size:14px; }
+.mb-footer { display:flex; align-items:center; gap:12px; padding:14px 20px; border-top:1px solid var(--border); flex-shrink:0; }
+.mb-selected-info { flex:1; font-size:12px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #markdownEditor {
   width: 100%; min-height: 420px; padding: 16px; border: 1px solid var(--border);
   border-radius: 0 0 9px 9px; font-size: 14px; font-family: 'Cascadia Code','Consolas',monospace;
@@ -379,9 +398,8 @@ input[type="file"] { display: none; }
               <button class="tb-btn" onclick="insertMdBlock('```\n','\n```')" title="代码块">{ }</button>
               <div class="tb-sep"></div>
               <button class="tb-btn" onclick="insertMd('[','](url)')" title="链接">🔗</button>
-              <button class="tb-btn" id="tbImgBtn" onclick="document.getElementById('editorImageInput').click()" title="上传图片插入">🖼</button>
+              <button class="tb-btn" onclick="openMb('images/posts/',url=>{const ta=document.getElementById('markdownEditor');const s=ta.selectionStart;const ins='\n![图片]('+url+')\n';ta.value=ta.value.substring(0,s)+ins+ta.value.substring(s);ta.focus();})" title="从媒体库插入图片">🖼</button>
               <button class="tb-btn" onclick="showVideoDialog()" title="插入视频">🎬</button>
-              <input type="file" id="editorImageInput" style="display:none" accept="image/*" onchange="uploadEditorImage(this)">
               <div class="tb-sep"></div>
               <button class="tb-btn" onclick="insertMdLine('---')" title="分割线">—</button>
             </div>
@@ -443,8 +461,7 @@ input[type="file"] { display: none; }
             <div class="avatar-upload">
               <div class="avatar-preview" id="avatarPreview">🎴</div>
               <div>
-                <label class="upload-btn" for="avatarFile"><i class="ti ti-upload"></i> 选择图片</label>
-                <input type="file" id="avatarFile" accept="image/*" onchange="previewAvatar(this)" />
+                <button class="upload-btn" onclick="openMb('avatar/',url=>{newAvatarData={url};document.getElementById('avatarPreview').innerHTML=`<img src='${url}' alt='avatar'/>`;})"><i class="ti ti-photo"></i> 从媒体库选择</button>
                 <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">支持 JPG、PNG、WebP<br>建议正方形，200x200px 以上</div>
               </div>
             </div>
@@ -454,8 +471,7 @@ input[type="file"] { display: none; }
           <div class="card-header"><h3>顶部背景图</h3></div>
           <div class="card-body">
             <div class="banner-preview" id="bannerPreview">🌸</div>
-            <label class="upload-btn" for="bannerFile"><i class="ti ti-upload"></i> 选择背景图</label>
-            <input type="file" id="bannerFile" accept="image/*" onchange="previewBanner(this)" />
+            <button class="upload-btn" onclick="openMb('images/',url=>{newBannerData={url};document.getElementById('bannerPreview').innerHTML=`<img src='${url}' alt='banner'/>`;})"><i class="ti ti-photo"></i> 从媒体库选择</button>
             <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">建议宽度 1920px 以上，WebP 格式</div>
           </div>
         </div>
@@ -653,6 +669,32 @@ input[type="file"] { display: none; }
 </div>
 
 <div id="toast"></div>
+
+<!-- COS 媒体库 -->
+<div class="mb-mask" id="mbMask" onclick="if(event.target===this)closeMb()">
+  <div class="mb-box">
+    <div class="mb-header">
+      <h3>📷 COS 媒体库</h3>
+      <div class="mb-toolbar">
+        <select class="mb-folder-select" id="mbFolderSelect" onchange="loadMbFiles()">
+          <option value="">全部文件</option>
+          <option value="images/posts/">文章图片</option>
+          <option value="images/">背景图</option>
+          <option value="avatar/">头像</option>
+          <option value="images/nav/">导航背景</option>
+        </select>
+        <label class="btn btn-secondary" for="mbUploadInput" style="margin:0;cursor:pointer"><i class="ti ti-upload"></i> 上传</label>
+        <input type="file" id="mbUploadInput" accept="image/*,video/*" style="display:none" onchange="mbUploadNew(this)">
+        <button class="btn btn-secondary" onclick="closeMb()">取消</button>
+      </div>
+    </div>
+    <div class="mb-grid" id="mbGrid"><div class="mb-empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;font-size:24px"></i><span>加载中...</span></div></div>
+    <div class="mb-footer">
+      <div class="mb-selected-info" id="mbSelectedInfo">从上方选择图片，或点击"上传"添加新文件</div>
+      <button class="btn btn-primary" id="mbConfirmBtn" onclick="mbConfirm()" disabled>确认选择</button>
+    </div>
+  </div>
+</div>
 
 <!-- 视频插入对话框 -->
 <div class="media-dialog-mask" id="videoDialogMask" onclick="if(event.target===this)closeVideoDialog()">
@@ -1105,31 +1147,93 @@ function uploadToCOS(file, key) {
   });
 }
 
-// ===== 编辑器图片上传 =====
-async function uploadEditorImage(input) {
+// ===== COS 媒体库 =====
+let _mbCallback = null;
+let _mbSelected = null;
+
+function openMb(folder, callback) {
+  _mbCallback = callback;
+  _mbSelected = null;
+  document.getElementById('mbConfirmBtn').disabled = true;
+  document.getElementById('mbSelectedInfo').textContent = '从上方选择图片，或点击"上传"添加新文件';
+  const sel = document.getElementById('mbFolderSelect');
+  sel.value = folder || '';
+  document.getElementById('mbMask').classList.add('show');
+  loadMbFiles();
+}
+
+function closeMb() {
+  document.getElementById('mbMask').classList.remove('show');
+  _mbCallback = null;
+  _mbSelected = null;
+}
+
+async function loadMbFiles() {
+  const grid = document.getElementById('mbGrid');
+  grid.innerHTML = '<div class="mb-empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;font-size:24px"></i><span>加载中...</span></div>';
+  const folder = document.getElementById('mbFolderSelect').value;
+  try {
+    const { cos, cfg } = getCosInstance();
+    if (!cfg.SecretId || !cfg.SecretKey) {
+      grid.innerHTML = '<div class="mb-empty"><i class="ti ti-alert-circle" style="font-size:24px"></i><span>请先在博客设置中配置 COS 密钥</span></div>';
+      return;
+    }
+    const data = await new Promise((res, rej) => {
+      cos.getBucket({ Bucket: cfg.Bucket, Region: cfg.Region, Prefix: folder, MaxKeys: 200 },
+        (err, d) => err ? rej(err) : res(d));
+    });
+    const files = (data.Contents || []).filter(f => !f.Key.endsWith('/'));
+    if (!files.length) {
+      grid.innerHTML = '<div class="mb-empty"><i class="ti ti-photo-off" style="font-size:24px"></i><span>暂无文件，点击"上传"添加</span></div>';
+      return;
+    }
+    const { cfg: c } = getCosInstance();
+    const baseUrl = `https://${c.Bucket}.cos.${c.Region}.myqcloud.com`;
+    grid.innerHTML = files.map(f => {
+      const url = `${baseUrl}/${f.Key}`;
+      const name = f.Key.split('/').pop();
+      const isImg = /\.(jpg|jpeg|png|webp|gif|svg|avif)$/i.test(name);
+      return `<div class="mb-item" onclick="mbSelect('${url}',this)" title="${name}">
+        ${isImg ? `<img src="${url}" loading="lazy">` : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:32px">📄</div>`}
+        <div class="mb-item-name">${name}</div>
+        <div class="mb-item-check">✓</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = `<div class="mb-empty"><i class="ti ti-alert-circle" style="font-size:24px"></i><span>加载失败：${e.Message||e.message}</span></div>`;
+  }
+}
+
+function mbSelect(url, el) {
+  document.querySelectorAll('.mb-item.selected').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  _mbSelected = url;
+  const name = url.split('/').pop();
+  document.getElementById('mbSelectedInfo').textContent = '已选：' + name;
+  document.getElementById('mbConfirmBtn').disabled = false;
+}
+
+function mbConfirm() {
+  if (!_mbSelected || !_mbCallback) return;
+  _mbCallback(_mbSelected);
+  closeMb();
+}
+
+async function mbUploadNew(input) {
   if (!input.files[0]) return;
   const file = input.files[0];
-  const btn = document.getElementById('tbImgBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳';
+  const folder = document.getElementById('mbFolderSelect').value || 'images/posts/';
+  const ts = Date.now();
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const key = `${folder}${ts}_${safeName}`;
   try {
-    const ts = Date.now();
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const key = `images/posts/${ts}_${safeName}`;
-    const url = await uploadToCOS(file, key);
-    const ta = document.getElementById('markdownEditor');
-    const s = ta.selectionStart;
-    const insert = `\n![${file.name}](${url})\n`;
-    ta.value = ta.value.substring(0, s) + insert + ta.value.substring(s);
-    ta.focus();
-    ta.setSelectionRange(s + insert.length, s + insert.length);
-    showToast('图片上传成功');
-  } catch(e) {
-    showToast('上传失败：' + (e.Message || e.message), true);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '🖼';
+    showToast('上传中...');
+    await uploadToCOS(file, key);
+    showToast('上传成功');
     input.value = '';
+    loadMbFiles();
+  } catch(e) {
+    showToast('上传失败：' + (e.Message||e.message), true);
   }
 }
 
@@ -1237,53 +1341,17 @@ function fillAppearanceForm() {
 }
 
 // ===== 外观 =====
-function previewAvatar(input) {
-  if (!input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    newAvatarData = { base64: e.target.result.split(',')[1], name: input.files[0].name };
-    document.getElementById('avatarPreview').innerHTML = `<img src="${e.target.result}" alt="avatar" />`;
-  };
-  reader.readAsDataURL(input.files[0]);
-}
-
-function previewBanner(input) {
-  if (!input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    newBannerData = { base64: e.target.result.split(',')[1], name: input.files[0].name };
-    document.getElementById('bannerPreview').innerHTML = `<img src="${e.target.result}" alt="banner" />`;
-  };
-  reader.readAsDataURL(input.files[0]);
-}
-
 async function saveAppearance() {
   const btn = document.getElementById('saveAppearanceBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> 保存中...';
   try {
     let content = paramsContent;
-    // 上传头像
     if (newAvatarData) {
-      const ext = newAvatarData.name.split('.').pop().toLowerCase();
-      const avatarPath = `static/avatar/avatar.${ext}`;
-      let sha = '';
-      try { sha = (await apiGet(`repos/${REPO}/contents/${avatarPath}`)).sha; } catch {}
-      const body = { message: 'update: avatar', content: newAvatarData.base64 };
-      if (sha) body.sha = sha;
-      await apiPut(`repos/${REPO}/contents/${avatarPath}`, body);
-      content = content.replace(/^avatar:\s*.+/m, `avatar: "avatar.${ext}"`);
+      content = content.replace(/^avatar:\s*.+/m, `avatar: "${newAvatarData.url}"`);
     }
-    // 上传背景图
     if (newBannerData) {
-      const ext = newBannerData.name.split('.').pop().toLowerCase();
-      const bannerPath = `static/images/banner.${ext}`;
-      let sha = '';
-      try { sha = (await apiGet(`repos/${REPO}/contents/${bannerPath}`)).sha; } catch {}
-      const body = { message: 'update: banner', content: newBannerData.base64 };
-      if (sha) body.sha = sha;
-      await apiPut(`repos/${REPO}/contents/${bannerPath}`, body);
-      content = content.replace(/^banner:\s*.+/m, `banner: "images/banner.${ext}"`);
+      content = content.replace(/^banner:\s*.+/m, `banner: "${newBannerData.url}"`);
     }
     // 基本信息
     const author = document.getElementById('cfgAuthor').value.trim();
@@ -1552,9 +1620,8 @@ function renderMenuItems(items, mi) {
         <div>
           <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">背景图</label>
           <div style="display:flex;gap:6px;align-items:center;">
-            <input type="text" class="form-control" value="${esc(item.background||'')}" id="itemBg-${mi}-${ii}" placeholder="images/banner.webp" style="flex:1;" />
-            <label class="upload-btn" for="itemBgFile-${mi}-${ii}" style="flex-shrink:0;padding:8px 10px;" title="上传背景图"><i class="ti ti-photo-up"></i></label>
-            <input type="file" id="itemBgFile-${mi}-${ii}" accept="image/*" onchange="uploadItemBg(this,${mi},${ii})" />
+            <input type="text" class="form-control" value="${esc(item.background||'')}" id="itemBg-${mi}-${ii}" placeholder="images/banner.webp 或 COS URL" style="flex:1;" />
+            <button class="upload-btn" style="flex-shrink:0;padding:8px 10px;" title="从媒体库选择" onclick="openMb('images/nav/',url=>{document.getElementById('itemBg-${mi}-${ii}').value=url;})"><i class="ti ti-photo"></i></button>
           </div>
         </div>
       </div>
@@ -1609,24 +1676,6 @@ function moveMenuItem(mi, ii, dir) {
   renderMenus();
 }
 
-async function uploadItemBg(input, mi, ii) {
-  if (!input.files[0]) return;
-  const file = input.files[0];
-  const ext = file.name.split('.').pop().toLowerCase();
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const base64 = e.target.result.split(',')[1];
-    const fname = `nav-${Date.now()}.${ext}`;
-    const path = `static/images/nav/${fname}`;
-    try {
-      await apiPut(`repos/${REPO}/contents/${path}`, { message: 'upload: nav background', content: base64 });
-      const url = `images/nav/${fname}`;
-      document.getElementById(`itemBg-${mi}-${ii}`).value = url;
-      showToast('背景图上传成功！', 'success');
-    } catch(e) { showToast('上传失败：' + e.message, 'error'); }
-  };
-  reader.readAsDataURL(file);
-}
 
 function collectMenuData() {
   return navMenus.map((menu, mi) => {
