@@ -6,7 +6,6 @@
 <title>小站管理后台</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
-<script src="https://registry.npmmirror.com/cos-js-sdk-v5/latest/files/dist/cos.min.js"></script>
 <style>
 :root {
   --red: #c0392b;
@@ -1097,14 +1096,65 @@ function insertMdBlock(before, after) {
 }
 
 // ===== COS 配置 =====
+// ===== COS 原生签名（无需外部SDK） =====
+function _cosGetCfg() {
+  return JSON.parse(localStorage.getItem('cos_config') || '{}');
+}
+async function _hmacSha1(keyStr, data) {
+  const key = typeof keyStr === 'string' ? new TextEncoder().encode(keyStr) : keyStr;
+  const ck = await crypto.subtle.importKey('raw', key, { name:'HMAC', hash:'SHA-1' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', ck, new TextEncoder().encode(data));
+  return Array.from(new Uint8Array(sig)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function _sha1hex(data) {
+  const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(data));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function _cosAuth(cfg, method, path, headers, params) {
+  const now = Math.floor(Date.now()/1000);
+  const qst = `${now};${now+3600}`;
+  const sk = await _hmacSha1(cfg.SecretKey, qst);
+  const hKeys = Object.keys(headers).map(k=>k.toLowerCase()).sort();
+  const pKeys = Object.keys(params).map(k=>k.toLowerCase()).sort();
+  const hStr = hKeys.map(k=>`${encodeURIComponent(k)}=${encodeURIComponent(headers[k.toLowerCase()]??headers[k])}`).join('&');
+  const pStr = pKeys.map(k=>`${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join('&');
+  const httpStr = `${method.toLowerCase()}\n${path}\n${pStr}\n${hStr}\n`;
+  const strToSign = `sha1\n${qst}\n${await _sha1hex(httpStr)}\n`;
+  const sig = await _hmacSha1(sk, strToSign);
+  return `q-sign-algorithm=sha1&q-ak=${cfg.SecretId}&q-sign-time=${qst}&q-key-time=${qst}&q-header-list=${hKeys.join(';')}&q-url-param-list=${pKeys.join(';')}&q-signature=${sig}`;
+}
+async function uploadToCOS(file, key) {
+  const cfg = _cosGetCfg();
+  if (!cfg.SecretId||!cfg.SecretKey||!cfg.Bucket||!cfg.Region) throw new Error('请先在博客设置中配置 COS 密钥');
+  const host = `${cfg.Bucket}.cos.${cfg.Region}.myqcloud.com`;
+  const path = `/${key}`;
+  const ct = file.type || 'application/octet-stream';
+  const hdrs = { host, 'content-type': ct };
+  const auth = await _cosAuth(cfg, 'put', path, hdrs, {});
+  const resp = await fetch(`https://${host}${path}`, { method:'PUT', headers:{...hdrs, Authorization:auth}, body:file });
+  if (!resp.ok) throw new Error(await resp.text());
+  return `https://${host}${path}`;
+}
+async function _cosList(folder) {
+  const cfg = _cosGetCfg();
+  if (!cfg.SecretId||!cfg.SecretKey||!cfg.Bucket||!cfg.Region) throw new Error('请先配置 COS 密钥');
+  const host = `${cfg.Bucket}.cos.${cfg.Region}.myqcloud.com`;
+  const params = { 'max-keys':'200', prefix: folder||'' };
+  const hdrs = { host };
+  const auth = await _cosAuth(cfg, 'get', '/', hdrs, params);
+  const qs = Object.entries(params).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join('&');
+  const resp = await fetch(`https://${host}/?${qs}`, { headers:{...hdrs, Authorization:auth} });
+  if (!resp.ok) throw new Error(await resp.text());
+  const doc = new DOMParser().parseFromString(await resp.text(), 'text/xml');
+  return Array.from(doc.querySelectorAll('Contents')).map(c=>({ Key: c.querySelector('Key').textContent }));
+}
+
 function loadCosConfig() {
-  const saved = JSON.parse(localStorage.getItem('cos_config') || '{}');
-  const cfg = Object.assign({}, saved);
+  const cfg = _cosGetCfg();
   document.getElementById('cosSecretId').value = cfg.SecretId || '';
   document.getElementById('cosSecretKey').value = cfg.SecretKey || '';
   document.getElementById('cosBucket').value = cfg.Bucket || '';
   document.getElementById('cosRegion').value = cfg.Region || '';
-  return cfg;
 }
 function saveCosConfig() {
   const cfg = {
@@ -1116,35 +1166,18 @@ function saveCosConfig() {
   localStorage.setItem('cos_config', JSON.stringify(cfg));
   showToast('COS 配置已保存');
 }
-function getCosInstance() {
-  const saved = JSON.parse(localStorage.getItem('cos_config') || '{}');
-  const cfg = Object.assign({}, saved);
-  return { cos: new COS({ SecretId: cfg.SecretId, SecretKey: cfg.SecretKey }), cfg };
-}
 async function testCosConfig() {
   const statusEl = document.getElementById('cosStatus');
   statusEl.textContent = '连接中...';
+  statusEl.style.color = 'var(--text-muted)';
   try {
-    const { cos, cfg } = getCosInstance();
-    await new Promise((res, rej) => {
-      cos.getBucketLocation({ Bucket: cfg.Bucket, Region: cfg.Region }, (err, data) => err ? rej(err) : res(data));
-    });
+    await _cosList('');
     statusEl.style.color = 'green';
     statusEl.textContent = '✓ 连接成功';
   } catch(e) {
     statusEl.style.color = 'red';
-    statusEl.textContent = '✗ 连接失败：' + (e.Message || e.message || e);
+    statusEl.textContent = '✗ 连接失败：' + e.message;
   }
-}
-function uploadToCOS(file, key) {
-  return new Promise((res, rej) => {
-    const { cos, cfg } = getCosInstance();
-    cos.putObject({ Bucket: cfg.Bucket, Region: cfg.Region, Key: key, Body: file }, (err, data) => {
-      if (err) return rej(err);
-      const url = `https://${cfg.Bucket}.cos.${cfg.Region}.myqcloud.com/${key}`;
-      res(url);
-    });
-  });
 }
 
 // ===== COS 媒体库 =====
@@ -1173,22 +1206,18 @@ async function loadMbFiles() {
   grid.innerHTML = '<div class="mb-empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;font-size:24px"></i><span>加载中...</span></div>';
   const folder = document.getElementById('mbFolderSelect').value;
   try {
-    const { cos, cfg } = getCosInstance();
+    const cfg = _cosGetCfg();
     if (!cfg.SecretId || !cfg.SecretKey) {
       grid.innerHTML = '<div class="mb-empty"><i class="ti ti-alert-circle" style="font-size:24px"></i><span>请先在博客设置中配置 COS 密钥</span></div>';
       return;
     }
-    const data = await new Promise((res, rej) => {
-      cos.getBucket({ Bucket: cfg.Bucket, Region: cfg.Region, Prefix: folder, MaxKeys: 200 },
-        (err, d) => err ? rej(err) : res(d));
-    });
-    const files = (data.Contents || []).filter(f => !f.Key.endsWith('/'));
+    const allFiles = await _cosList(folder);
+    const files = allFiles.filter(f => !f.Key.endsWith('/'));
     if (!files.length) {
       grid.innerHTML = '<div class="mb-empty"><i class="ti ti-photo-off" style="font-size:24px"></i><span>暂无文件，点击"上传"添加</span></div>';
       return;
     }
-    const { cfg: c } = getCosInstance();
-    const baseUrl = `https://${c.Bucket}.cos.${c.Region}.myqcloud.com`;
+    const baseUrl = `https://${cfg.Bucket}.cos.${cfg.Region}.myqcloud.com`;
     grid.innerHTML = files.map(f => {
       const url = `${baseUrl}/${f.Key}`;
       const name = f.Key.split('/').pop();
