@@ -12,7 +12,23 @@
   {{- end -}}
 {{- end -}}
 
+{{/* Compute background source for full-page bg layer */}}
+{{- $bgSrc := .Params.banner | default .Params.cover -}}
+{{- if and (not $bgSrc) $catBg -}}{{- $bgSrc = $catBg -}}{{- end -}}
+{{- if not $bgSrc -}}{{- $bgSrc = .Site.Params.banner -}}{{- end -}}
+{{- $bgIsVideo := and $bgSrc (or (strings.HasSuffix $bgSrc ".mp4") (strings.HasSuffix $bgSrc ".webm")) -}}
+
 <link rel="stylesheet" href="{{ "/css/nav-dropdown.css" | relURL }}">
+<link rel="stylesheet" href="{{ "/css/dark-glass.css" | relURL }}">
+
+{{/* Fixed full-page blurred background layer */}}
+{{- if and $bgSrc $bgIsVideo -}}
+<video id="site-bg" autoplay muted loop playsinline>
+  <source src="{{ $bgSrc | relURL }}" type="video/mp4">
+</video>
+{{- else -}}
+<div id="site-bg"{{ if $bgSrc }} style="background-image:url('{{ $bgSrc | relURL }}');"{{ end }}></div>
+{{- end -}}
 
 <div id="header-nav">
   <nav id="main-nav" aria-label="Primary navigation">
@@ -132,8 +148,14 @@
     <picture></picture>
     <img style="position:absolute;top:0;left:0;width:100%;height:180%;z-index:-2;display:block;background:{{ $headerImage | safeCSS }};mask:linear-gradient(to top,transparent,#fff 50%);"></img>
   {{- else if $headerImage -}}
+    {{- if or (strings.HasSuffix $headerImage ".mp4") (strings.HasSuffix $headerImage ".webm") -}}
+    <video autoplay muted loop playsinline class="header-video">
+      <source src="{{ $headerImage | relURL }}" type="video/mp4">
+    </video>
+    {{- else -}}
     <picture></picture>
     <img {{ if .Site.Params.material_theme.enable }}crossorigin="anonymous"{{ end }} fetchpriority="high" src="{{ $headerImage | relURL }}" alt="{{ .Title }}">
+    {{- end -}}
   {{- else if or (eq .Params.banner false) (eq .Params.cover false) -}}
     <picture></picture>
     <img style="visibility:hidden"></img>

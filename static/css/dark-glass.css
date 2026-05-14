@@ -1,0 +1,150 @@
+/* =====================================================
+   Dark Glass Theme — blurred bg + frosted glass cards
+   ===================================================== */
+
+/* Transparent base so bg layer shows through */
+body,
+.main {
+  background: transparent !important;
+}
+
+/* ── Fixed full-page background ── */
+#site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: #0c0c10;
+  background-size: cover;
+  background-position: center;
+  filter: blur(22px) brightness(0.28) saturate(0.6);
+  transform: scale(1.12); /* prevents blur-edge white fringe */
+}
+video#site-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Banner video ── */
+.header-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Post cards — frosted glass ── */
+.post-wrap {
+  background: rgba(14, 14, 20, 0.62) !important;
+  backdrop-filter: blur(20px) saturate(1.4) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.55),
+              inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.35s ease !important;
+}
+.post-wrap:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 20px 64px rgba(0, 0, 0, 0.7),
+              inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+.post-info {
+  background: transparent !important;
+}
+
+/* Card text */
+.post-title,
+.post-title a {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+.post-article,
+.post-article * {
+  color: rgba(255, 255, 255, 0.64) !important;
+}
+.post-meta span,
+.post-meta a {
+  color: rgba(255, 255, 255, 0.42) !important;
+}
+
+/* ── Sidebar widgets ── */
+.widget {
+  background: rgba(14, 14, 20, 0.58) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45) !important;
+}
+.widget-title {
+  color: rgba(255, 255, 255, 0.82) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+.widget a { color: rgba(255, 255, 255, 0.62) !important; }
+.widget a:hover { color: rgba(255, 255, 255, 0.92) !important; }
+.widget li { color: rgba(255, 255, 255, 0.55) !important; }
+
+/* ── Single article content ── */
+#post-body,
+.post-body,
+.article-container,
+#article-container {
+  background: rgba(14, 14, 20, 0.65) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 12px;
+}
+#post-body *,
+.post-body * {
+  color: rgba(255, 255, 255, 0.80) !important;
+}
+#post-body h1, #post-body h2, #post-body h3,
+#post-body h4, #post-body h5, #post-body h6,
+.post-body h1, .post-body h2, .post-body h3 {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+#post-body a, .post-body a {
+  color: #ff8080 !important;
+}
+#post-body code, .post-body code {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffb3b3 !important;
+}
+
+/* ── Footer ── */
+#footer,
+footer {
+  background: rgba(8, 8, 12, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  color: rgba(255, 255, 255, 0.42) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+#footer a, footer a {
+  color: rgba(255, 255, 255, 0.52) !important;
+}
+
+/* ── Pagination ── */
+.page-number,
+.extend {
+  background: rgba(14, 14, 20, 0.62) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.page-number.current {
+  background: rgba(192, 57, 43, 0.75) !important;
+  color: #fff !important;
+}
+
+/* ── Archives list (taxonomy page list style) ── */
+.archives-wrap {
+  background: rgba(14, 14, 20, 0.55) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+.archive-article-title { color: rgba(255, 255, 255, 0.80) !important; }
+.archive-article-date span { color: rgba(255, 255, 255, 0.38) !important; }
