@@ -23,7 +23,17 @@
   from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
+/* transparent bridge: fills the gap so hover stays active while moving mouse down */
 .reimu-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+}
+/* visual arrow pointing up toward the nav item */
+.reimu-dropdown::after {
   content: '';
   position: absolute;
   top: -6px;
@@ -56,7 +66,7 @@ html[data-theme-mode="true"] .reimu-dropdown {
   background: #2d2d2d;
   border-color: rgba(255,255,255,0.08);
 }
-html[data-theme-mode="true"] .reimu-dropdown::before {
+html[data-theme-mode="true"] .reimu-dropdown::after {
   border-bottom-color: #2d2d2d;
 }
 html[data-theme-mode="true"] .reimu-dropdown-item {
