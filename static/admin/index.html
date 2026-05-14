@@ -1129,9 +1129,9 @@ async function uploadToCOS(file, key) {
   const host = `${cfg.Bucket}.cos.${cfg.Region}.myqcloud.com`;
   const path = `/${key}`;
   const ct = file.type || 'application/octet-stream';
-  const hdrs = { host, 'content-type': ct };
-  const auth = await _cosAuth(cfg, 'put', path, hdrs, {});
-  const resp = await fetch(`https://${host}${path}`, { method:'PUT', headers:{...hdrs, Authorization:auth}, body:file });
+  // 浏览器端不签 host（浏览器自动设置，不可手动覆盖）
+  const auth = await _cosAuth(cfg, 'put', path, { 'content-type': ct }, {});
+  const resp = await fetch(`https://${host}${path}`, { method:'PUT', headers:{ 'content-type':ct, Authorization:auth }, body:file });
   if (!resp.ok) throw new Error(await resp.text());
   return `https://${host}${path}`;
 }
@@ -1140,10 +1140,10 @@ async function _cosList(folder) {
   if (!cfg.SecretId||!cfg.SecretKey||!cfg.Bucket||!cfg.Region) throw new Error('请先配置 COS 密钥');
   const host = `${cfg.Bucket}.cos.${cfg.Region}.myqcloud.com`;
   const params = { 'max-keys':'200', prefix: folder||'' };
-  const hdrs = { host };
-  const auth = await _cosAuth(cfg, 'get', '/', hdrs, params);
+  // 浏览器端不签 host
+  const auth = await _cosAuth(cfg, 'get', '/', {}, params);
   const qs = Object.entries(params).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join('&');
-  const resp = await fetch(`https://${host}/?${qs}`, { headers:{...hdrs, Authorization:auth} });
+  const resp = await fetch(`https://${host}/?${qs}`, { headers:{ Authorization:auth } });
   if (!resp.ok) throw new Error(await resp.text());
   const doc = new DOMParser().parseFromString(await resp.text(), 'text/xml');
   return Array.from(doc.querySelectorAll('Contents')).map(c=>({ Key: c.querySelector('Key').textContent }));
