@@ -47,21 +47,18 @@ html,
   overflow: hidden !important;
   min-height: 65vh !important;
 }
-/* 底部白色毛玻璃：blur 随 mask 从下向上渐隐，图片顶部完全清晰 */
+/* 底部白色渐变：图片顶部清晰，向下淡出至内容区同色，无硬边界 */
 #header::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 45%;
+  height: 55%;
   background: linear-gradient(to bottom,
-    rgba(255, 247, 247, 0)    0%,
-    rgba(255, 247, 247, 0.45) 55%,
-    rgba(255, 247, 247, 0.82) 100%);
-  backdrop-filter: blur(10px) saturate(1.1);
-  -webkit-backdrop-filter: blur(10px) saturate(1.1);
-  /* mask 让 blur+白色从底部向上渐入，上边缘完全透明 */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 35%);
-  mask-image: linear-gradient(to bottom, transparent 0%, black 35%);
+    rgba(255, 247, 247, 0)   0%,
+    rgba(255, 247, 247, 0)   10%,
+    rgba(255, 247, 247, 0.3) 45%,
+    rgba(255, 247, 247, 0.75) 75%,
+    rgba(255, 247, 247, 1)   100%);
   pointer-events: none;
   z-index: 10;
 }
