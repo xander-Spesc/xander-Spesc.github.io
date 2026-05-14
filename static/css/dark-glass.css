@@ -45,31 +45,45 @@ body {
   color: #c0392b !important;
 }
 
-/* ── Hero: banner image, let theme control height, fixed-nav offset ── */
+/* ── Hero: image fills to top, nav overlays it (glass nav visible through) ── */
 #header {
   position: relative !important;
-  margin-top: 56px !important; /* offset for fixed nav */
+  margin-top: 0 !important;
 }
-/* Soft white gradient fading into page background */
+/* White gradient fade at bottom of hero into page bg */
 #header::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 160px;
+  height: 220px;
   background: linear-gradient(to bottom, transparent 0%, #fff7f7 100%);
   pointer-events: none;
   z-index: 10;
 }
-/* Title / subtitle sit above the gradient */
+/* Title area: transparent bg, push down past fixed nav */
 #header-outer {
-  position: relative;
+  position: relative !important;
   z-index: 20;
+  background: transparent !important;
+  padding-top: 56px !important;
 }
 /* Hero title: white with soft shadow */
 #header-title h1,
 #header-title #subtitle {
   color: #fff !important;
   text-shadow: 0 2px 14px rgba(0,0,0,0.38), 0 1px 3px rgba(0,0,0,0.22) !important;
+}
+
+/* ── Content area background — must match gradient end color ── */
+#outer,
+.outer,
+#app,
+.app,
+#content,
+.content,
+[id*="content"],
+[class*="content-wrap"] {
+  background: #fff7f7 !important;
 }
 
 
