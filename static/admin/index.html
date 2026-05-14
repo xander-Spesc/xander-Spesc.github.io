@@ -6,6 +6,7 @@
 <title>小站管理后台</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cos-js-sdk-v5/dist/cos.min.js"></script>
 <style>
 :root {
   --red: #c0392b;
@@ -591,6 +592,35 @@ input[type="file"] { display: none; }
           <button class="btn btn-secondary" style="margin-top:10px;" onclick="loadConfig()"><i class="ti ti-refresh"></i> 重新读取</button>
         </div>
       </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="card-header"><h3>腾讯云 COS 媒体存储</h3></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">配置后，编辑器上传图片/视频将直接存入 COS，不占用 GitHub 仓库空间。密钥仅保存在本地浏览器。</p>
+          <div class="settings-grid">
+            <div class="settings-item">
+              <label>SecretId</label>
+              <input type="text" class="form-control" id="cosSecretId" placeholder="AKIDxxx" />
+            </div>
+            <div class="settings-item">
+              <label>SecretKey</label>
+              <input type="password" class="form-control" id="cosSecretKey" placeholder="••••••••" />
+            </div>
+            <div class="settings-item">
+              <label>Bucket</label>
+              <input type="text" class="form-control" id="cosBucket" placeholder="your-bucket-1234567890" />
+            </div>
+            <div class="settings-item">
+              <label>Region</label>
+              <input type="text" class="form-control" id="cosRegion" placeholder="ap-beijing" />
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px;align-items:center;">
+            <button class="btn btn-primary" onclick="saveCosConfig()"><i class="ti ti-device-floppy"></i> 保存 COS 配置</button>
+            <button class="btn btn-secondary" onclick="testCosConfig()"><i class="ti ti-plug"></i> 测试连接</button>
+            <span id="cosStatus" style="font-size:13px;color:var(--text-muted);"></span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 菜单管理 -->
@@ -798,6 +828,7 @@ function startApp() {
   loadConfig();
   loadParams();
   loadMenus();
+  loadCosConfig();
 }
 
 window.addEventListener('load', () => {
@@ -1023,6 +1054,57 @@ function insertMdBlock(before, after) {
   ta.focus();
 }
 
+// ===== COS 配置 =====
+function loadCosConfig() {
+  const saved = JSON.parse(localStorage.getItem('cos_config') || '{}');
+  const cfg = Object.assign({}, saved);
+  document.getElementById('cosSecretId').value = cfg.SecretId || '';
+  document.getElementById('cosSecretKey').value = cfg.SecretKey || '';
+  document.getElementById('cosBucket').value = cfg.Bucket || '';
+  document.getElementById('cosRegion').value = cfg.Region || '';
+  return cfg;
+}
+function saveCosConfig() {
+  const cfg = {
+    SecretId: document.getElementById('cosSecretId').value.trim(),
+    SecretKey: document.getElementById('cosSecretKey').value.trim(),
+    Bucket: document.getElementById('cosBucket').value.trim(),
+    Region: document.getElementById('cosRegion').value.trim()
+  };
+  localStorage.setItem('cos_config', JSON.stringify(cfg));
+  showToast('COS 配置已保存');
+}
+function getCosInstance() {
+  const saved = JSON.parse(localStorage.getItem('cos_config') || '{}');
+  const cfg = Object.assign({}, saved);
+  return { cos: new COS({ SecretId: cfg.SecretId, SecretKey: cfg.SecretKey }), cfg };
+}
+async function testCosConfig() {
+  const statusEl = document.getElementById('cosStatus');
+  statusEl.textContent = '连接中...';
+  try {
+    const { cos, cfg } = getCosInstance();
+    await new Promise((res, rej) => {
+      cos.getBucketLocation({ Bucket: cfg.Bucket, Region: cfg.Region }, (err, data) => err ? rej(err) : res(data));
+    });
+    statusEl.style.color = 'green';
+    statusEl.textContent = '✓ 连接成功';
+  } catch(e) {
+    statusEl.style.color = 'red';
+    statusEl.textContent = '✗ 连接失败：' + (e.Message || e.message || e);
+  }
+}
+function uploadToCOS(file, key) {
+  return new Promise((res, rej) => {
+    const { cos, cfg } = getCosInstance();
+    cos.putObject({ Bucket: cfg.Bucket, Region: cfg.Region, Key: key, Body: file }, (err, data) => {
+      if (err) return rej(err);
+      const url = `https://${cfg.Bucket}.cos.${cfg.Region}.myqcloud.com/${key}`;
+      res(url);
+    });
+  });
+}
+
 // ===== 编辑器图片上传 =====
 async function uploadEditorImage(input) {
   if (!input.files[0]) return;
@@ -1031,22 +1113,10 @@ async function uploadEditorImage(input) {
   btn.disabled = true;
   btn.textContent = '⏳';
   try {
-    const ext = file.name.split('.').pop().toLowerCase();
     const ts = Date.now();
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const path = `static/images/posts/${ts}_${safeName}`;
-    const base64 = await new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = e => res(e.target.result.split(',')[1]);
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    });
-    let sha = '';
-    try { sha = (await apiGet(`repos/${REPO}/contents/${path}`)).sha; } catch {}
-    const body = { message: `upload: post image ${safeName}`, content: base64 };
-    if (sha) body.sha = sha;
-    await apiPut(`repos/${REPO}/contents/${path}`, body);
-    const url = `/images/posts/${ts}_${safeName}`;
+    const key = `images/posts/${ts}_${safeName}`;
+    const url = await uploadToCOS(file, key);
     const ta = document.getElementById('markdownEditor');
     const s = ta.selectionStart;
     const insert = `\n![${file.name}](${url})\n`;
@@ -1055,7 +1125,7 @@ async function uploadEditorImage(input) {
     ta.setSelectionRange(s + insert.length, s + insert.length);
     showToast('图片上传成功');
   } catch(e) {
-    showToast('上传失败：' + e.message, true);
+    showToast('上传失败：' + (e.Message || e.message), true);
   } finally {
     btn.disabled = false;
     btn.textContent = '🖼';
