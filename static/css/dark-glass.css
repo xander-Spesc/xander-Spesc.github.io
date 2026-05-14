@@ -72,22 +72,6 @@ body {
   text-shadow: 0 2px 14px rgba(0,0,0,0.38), 0 1px 3px rgba(0,0,0,0.22) !important;
 }
 
-/* ── Hide sidebar, expand content to full width ── */
-#sidebar,
-.sidebar,
-#sidebar-inner {
-  display: none !important;
-}
-#content-outer,
-#content-inner,
-.content-outer,
-.content-inner,
-.main > div:first-child {
-  width: 100% !important;
-  max-width: 100% !important;
-  margin-right: 0 !important;
-  padding-right: 0 !important;
-}
 
 /* Banner video support */
 .header-video {
