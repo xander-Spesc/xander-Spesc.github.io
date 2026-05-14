@@ -45,12 +45,9 @@ body {
   color: #c0392b !important;
 }
 
-/* ── Hero: tall banner + white gradient at bottom ── */
+/* ── Hero: banner image, let theme control height, fixed-nav offset ── */
 #header {
-  height: 75vh !important;
-  min-height: 420px;
   position: relative !important;
-  overflow: hidden !important;
   margin-top: 56px !important; /* offset for fixed nav */
 }
 /* Soft white gradient fading into page background */
@@ -58,21 +55,38 @@ body {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 200px;
-  background: linear-gradient(to bottom, transparent, #fff7f7);
+  height: 160px;
+  background: linear-gradient(to bottom, transparent 0%, #fff7f7 100%);
   pointer-events: none;
-  z-index: 1;
+  z-index: 10;
 }
 /* Title / subtitle sit above the gradient */
 #header-outer {
   position: relative;
-  z-index: 2;
+  z-index: 20;
 }
 /* Hero title: white with soft shadow */
 #header-title h1,
 #header-title #subtitle {
   color: #fff !important;
   text-shadow: 0 2px 14px rgba(0,0,0,0.38), 0 1px 3px rgba(0,0,0,0.22) !important;
+}
+
+/* ── Hide sidebar, expand content to full width ── */
+#sidebar,
+.sidebar,
+#sidebar-inner {
+  display: none !important;
+}
+#content-outer,
+#content-inner,
+.content-outer,
+.content-inner,
+.main > div:first-child {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-right: 0 !important;
+  padding-right: 0 !important;
 }
 
 /* Banner video support */
