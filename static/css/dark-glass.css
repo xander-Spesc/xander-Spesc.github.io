@@ -45,17 +45,18 @@ html,
   position: relative !important;
   margin-top: 0 !important;
   overflow: hidden !important;
+  min-height: 65vh !important;
 }
-/* Soft WHITE gradient — no black, no dark */
+/* 底部向下渐变：透明→半透明白，图片依然透出 */
 #header::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 220px;
+  height: 50%;
   background: linear-gradient(to bottom,
-    transparent 0%,
-    rgba(255, 247, 247, 0.6) 50%,
-    #fff7f7 100%);
+    rgba(255, 247, 247, 0)    0%,
+    rgba(255, 247, 247, 0.5)  60%,
+    rgba(255, 247, 247, 0.85) 100%);
   pointer-events: none;
   z-index: 10;
 }
