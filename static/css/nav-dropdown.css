@@ -5,11 +5,13 @@
   cursor: default;
 }
 .reimu-dropdown {
-  display: none;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
   position: absolute;
   top: calc(100% + 10px);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(-4px);
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.13), 0 2px 6px rgba(0,0,0,0.06);
@@ -17,13 +19,19 @@
   padding: 6px 0;
   z-index: 1000;
   border: 1px solid rgba(0,0,0,0.06);
-  animation: rdFade 0.15s ease;
+  /* delay:0.2s only applies when transitioning back to hidden (mouse leave) */
+  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+  transition-delay: 0.2s;
 }
-@keyframes rdFade {
-  from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+.reimu-dropdown-wrap:hover .reimu-dropdown,
+.reimu-dropdown-wrap:focus-within .reimu-dropdown {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+  transition-delay: 0s;
 }
-/* transparent bridge: fills the gap so hover stays active while moving mouse down */
+/* transparent bridge filling the gap so ::before isn't needed for hover */
 .reimu-dropdown::before {
   content: '';
   position: absolute;
@@ -32,7 +40,7 @@
   right: 0;
   height: 10px;
 }
-/* visual arrow pointing up toward the nav item */
+/* visual arrow */
 .reimu-dropdown::after {
   content: '';
   position: absolute;
@@ -43,10 +51,6 @@
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
   border-bottom: 6px solid #fff;
-}
-.reimu-dropdown-wrap:hover .reimu-dropdown,
-.reimu-dropdown-wrap:focus-within .reimu-dropdown {
-  display: block;
 }
 .reimu-dropdown-item {
   display: block;
