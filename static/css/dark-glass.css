@@ -1,107 +1,74 @@
 /* =====================================================
-   Light Glass Theme
-   Fixed white-glass nav + tall hero + light content area
+   Light Theme — white bg, clean cards, white-glass nav
    ===================================================== */
 
-/* Hide the old full-page blurred background layer */
 #site-bg { display: none !important; }
 
 /* ── Base ── */
-body {
-  background: #fff7f7 !important;
-}
-.main {
-  background: transparent !important;
-}
+body  { background: #fff !important; }
+.main { background: transparent !important; }
 
 /* ── Fixed white-glass navigation ── */
 #header-nav {
   position: fixed !important;
   top: 0; left: 0; right: 0;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.82) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
   backdrop-filter: blur(14px) saturate(1.6) !important;
   -webkit-backdrop-filter: blur(14px) saturate(1.6) !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06) !important;
 }
-/* Nav link colors on light background */
-.main-nav-link          { color: #3a3a3a !important; }
+.main-nav-link { color: #3a3a3a !important; }
 .main-nav-link-wrap:hover .main-nav-link { color: #c0392b !important; }
-.main-nav-icon          { color: #c0392b !important; }
-#nav-rss-link,
-#nav-search-btn         { color: #888 !important; }
+.main-nav-icon { color: #c0392b !important; }
 
-/* Dropdown on white nav */
+/* Dropdown */
 .reimu-dropdown {
-  background: rgba(255, 255, 255, 0.97) !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10) !important;
+  background: #fff !important;
+  border-color: rgba(0,0,0,0.06) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10) !important;
 }
 .reimu-dropdown::after  { border-bottom-color: #fff !important; }
 .reimu-dropdown-item    { color: #444 !important; }
-.reimu-dropdown-item:hover {
-  background: #fff0f0 !important;
-  color: #c0392b !important;
-}
+.reimu-dropdown-item:hover { background: #fff0f0 !important; color: #c0392b !important; }
 
-/* ── Hero: image fills to top, nav overlays it (glass nav visible through) ── */
+/* ── Hero ── */
 #header {
   position: relative !important;
   margin-top: 0 !important;
 }
-/* White gradient fade at bottom of hero into page bg */
+/* Gradient fades into pure white — no pink */
 #header::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 220px;
-  background: linear-gradient(to bottom, transparent 0%, #fff7f7 100%);
+  height: 180px;
+  background: linear-gradient(to bottom, transparent, #fff);
   pointer-events: none;
   z-index: 10;
 }
-/* Title area: transparent bg, push down past fixed nav */
 #header-outer {
   position: relative !important;
   z-index: 20;
   background: transparent !important;
   padding-top: 56px !important;
 }
-/* Hero title: white with soft shadow */
 #header-title h1,
 #header-title #subtitle {
   color: #fff !important;
-  text-shadow: 0 2px 14px rgba(0,0,0,0.38), 0 1px 3px rgba(0,0,0,0.22) !important;
+  text-shadow: 0 2px 14px rgba(0,0,0,0.40), 0 1px 3px rgba(0,0,0,0.20) !important;
 }
-
-/* ── Content area background — must match gradient end color ── */
-#outer,
-.outer,
-#app,
-.app,
-#content,
-.content,
-[id*="content"],
-[class*="content-wrap"] {
-  background: #fff7f7 !important;
-}
-
-
-/* Banner video support */
 .header-video {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0; width: 100%; height: 100%;
   object-fit: cover;
 }
 
-/* ── Post cards — white glass ── */
+/* ── Post cards ── */
 .post-wrap {
-  background: rgba(255, 255, 255, 0.90) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.98) !important;
+  background: #fff !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07),
               0 1px 4px rgba(0, 0, 0, 0.04) !important;
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -113,60 +80,34 @@ body {
               0 4px 12px rgba(0, 0, 0, 0.06) !important;
 }
 .post-info { background: transparent !important; }
-
-/* Card text — normal dark */
 .post-title, .post-title a { color: #2c2c2c !important; }
 .post-article, .post-article * { color: #666 !important; }
-.post-meta span { color: #aaa !important; }
+.post-meta span { color: #bbb !important; }
 
-/* ── Sidebar widgets — white glass ── */
+/* ── Sidebar widgets ── */
 .widget {
-  background: rgba(255, 255, 255, 0.86) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+  background: #fff !important;
   border-radius: 20px !important;
-  border: 1px solid rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
   box-shadow: 0 8px 36px rgba(0, 0, 0, 0.07),
-              0 2px 8px rgba(0, 0, 0, 0.04) !important;
+              0 2px 8px rgba(0, 0, 0, 0.03) !important;
 }
-.widget-title {
-  color: #2c2c2c !important;
-  border-color: rgba(192, 57, 43, 0.12) !important;
-}
-.widget a          { color: #555 !important; }
-.widget a:hover    { color: #c0392b !important; }
-.widget li         { color: #777 !important; }
-
-/* Sidebar buttons — light pink transparent */
-.widget .btn,
-.widget button,
-.widget .tag,
-.widget [class*="tag"],
-.widget [class*="category"] {
-  background: rgba(192, 57, 43, 0.07) !important;
-  color: #c0392b !important;
-  border: 1px solid rgba(192, 57, 43, 0.16) !important;
-  border-radius: 20px !important;
-  box-shadow: none !important;
-}
-.widget .btn:hover,
-.widget button:hover,
-.widget .tag:hover,
-.widget [class*="tag"]:hover {
-  background: rgba(192, 57, 43, 0.14) !important;
-}
+.widget-title { color: #2c2c2c !important; border-color: rgba(192,57,43,0.12) !important; }
+.widget a { color: #555 !important; }
+.widget a:hover { color: #c0392b !important; }
+.widget li { color: #777 !important; }
 
 /* ── Footer ── */
 #footer, footer {
-  background: #fff7f7 !important;
+  background: #fff !important;
   border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
-  color: #aaa !important;
+  color: #bbb !important;
 }
 #footer a, footer a { color: #c0392b !important; }
 
 /* ── Pagination ── */
 .page-number, .extend {
-  background: rgba(255, 255, 255, 0.90) !important;
+  background: #fff !important;
   color: #666 !important;
   border: 1px solid rgba(0, 0, 0, 0.07) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
