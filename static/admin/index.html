@@ -415,10 +415,18 @@ input[type="file"] { display: none; }
             <div class="card-header"><h3>文章设置</h3></div>
             <div class="card-body">
               <div class="editor-sidebar-section">
-                <label>分类（从菜单选择或手动输入）</label>
-                <input type="text" class="form-control" id="postCategory" list="categoryDatalist" placeholder="从下方选择或手动输入..." />
-                <datalist id="categoryDatalist"></datalist>
+                <label>大类</label>
+                <select class="form-control" id="postMenuGroup" onchange="onMenuGroupChange()">
+                  <option value="">-- 选择大类 --</option>
+                </select>
               </div>
+              <div class="editor-sidebar-section">
+                <label>小类</label>
+                <select class="form-control" id="postSubCategory" onchange="onSubCategoryChange()">
+                  <option value="">-- 先选大类 --</option>
+                </select>
+              </div>
+              <input type="hidden" id="postCategory" />
               <div class="editor-sidebar-section">
                 <label>标签（逗号分隔）</label>
                 <input type="text" class="form-control" id="postTags" placeholder="Hugo, 博客, 技术" />
@@ -988,6 +996,8 @@ function newPost() {
   document.getElementById('editorTitle').textContent = '写新文章';
   ['postTitle','markdownEditor','postCategory','postTags','postFilename','postCover','editingPath','editingSha']
     .forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('postMenuGroup').value = '';
+  onMenuGroupChange();
 }
 
 async function editPost(path) {
@@ -1008,7 +1018,8 @@ async function editPost(path) {
     document.getElementById('postTags').value = Array.isArray(tags) ? tags.join(', ') : (tags || '');
     // 分类
     const cats = meta.categories;
-    document.getElementById('postCategory').value = Array.isArray(cats) ? (cats[0] || '') : (cats || '');
+    const catVal = Array.isArray(cats) ? (cats[0] || '') : (cats || '');
+    restoreCategoryDropdowns(catVal);
     // 封面
     if (meta.cover) document.getElementById('postCover').value = meta.cover;
     else document.getElementById('postCover').value = '';
@@ -1788,19 +1799,68 @@ function collectMenuData() {
 }
 
 function populateCategoryDatalist() {
-  const dl = document.getElementById('categoryDatalist');
-  if (!dl) return;
-  dl.innerHTML = '';
-  navMenus.forEach(menu => {
-    (menu.items || []).forEach(item => {
-      if (item.category) {
-        const opt = document.createElement('option');
-        opt.value = item.category;
-        opt.label = `${menu.name} → ${item.name}`;
-        dl.appendChild(opt);
-      }
-    });
+  const groupSel = document.getElementById('postMenuGroup');
+  if (!groupSel) return;
+  const prevGroup = groupSel.value;
+  groupSel.innerHTML = '<option value="">-- 选择大类 --</option>';
+  navMenus.forEach((menu, i) => {
+    if ((menu.items || []).some(it => it.category)) {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = menu.name;
+      groupSel.appendChild(opt);
+    }
   });
+  // restore previous selection if still valid
+  if (prevGroup !== '' && groupSel.querySelector(`option[value="${prevGroup}"]`)) {
+    groupSel.value = prevGroup;
+  }
+  onMenuGroupChange();
+}
+
+function onMenuGroupChange() {
+  const groupSel = document.getElementById('postMenuGroup');
+  const subSel = document.getElementById('postSubCategory');
+  const catInput = document.getElementById('postCategory');
+  subSel.innerHTML = '<option value="">-- 选择小类 --</option>';
+  catInput.value = '';
+  const idx = groupSel.value;
+  if (idx === '') return;
+  const menu = navMenus[parseInt(idx, 10)];
+  if (!menu) return;
+  (menu.items || []).forEach(item => {
+    if (item.category) {
+      const opt = document.createElement('option');
+      opt.value = item.category;
+      opt.textContent = item.name;
+      subSel.appendChild(opt);
+    }
+  });
+}
+
+function onSubCategoryChange() {
+  const subSel = document.getElementById('postSubCategory');
+  document.getElementById('postCategory').value = subSel.value;
+}
+
+function restoreCategoryDropdowns(categoryValue) {
+  const groupSel = document.getElementById('postMenuGroup');
+  const subSel = document.getElementById('postSubCategory');
+  groupSel.value = '';
+  subSel.innerHTML = '<option value="">-- 选择小类 --</option>';
+  document.getElementById('postCategory').value = '';
+  if (!categoryValue) return;
+  for (let i = 0; i < navMenus.length; i++) {
+    const menu = navMenus[i];
+    const match = (menu.items || []).find(it => it.category === categoryValue);
+    if (match) {
+      groupSel.value = String(i);
+      onMenuGroupChange();
+      subSel.value = categoryValue;
+      document.getElementById('postCategory').value = categoryValue;
+      break;
+    }
+  }
 }
 
 async function saveMenus() {
