@@ -1700,7 +1700,30 @@ function toggleItemType(mi, ii, type) {
   document.getElementById(`itemUrlWrap-${mi}-${ii}`).style.display = type === 'url' ? '' : 'none';
 }
 
+function syncMenusFromForm() {
+  navMenus.forEach((menu, mi) => {
+    const nameEl = document.getElementById(`menuName-${mi}`);
+    if (nameEl) menu.name = nameEl.value.trim() || menu.name;
+    (menu.items || []).forEach((item, ii) => {
+      const nEl = document.getElementById(`itemName-${mi}-${ii}`);
+      const tEl = document.getElementById(`itemType-${mi}-${ii}`);
+      const cEl = document.getElementById(`itemCat-${mi}-${ii}`);
+      const uEl = document.getElementById(`itemUrl-${mi}-${ii}`);
+      const bEl = document.getElementById(`itemBg-${mi}-${ii}`);
+      if (nEl) item.name = nEl.value.trim();
+      if (tEl) {
+        const t = tEl.value;
+        delete item.category; delete item.url;
+        if (t === 'url' && uEl) { if (uEl.value.trim()) item.url = uEl.value.trim(); }
+        else if (cEl && cEl.value.trim()) item.category = cEl.value.trim();
+      }
+      if (bEl) item.background = bEl.value.trim();
+    });
+  });
+}
+
 function addMenu() {
+  syncMenusFromForm();
   navMenus.push({ name: '新菜单', items: [] });
   renderMenus();
   showPage('menus');
@@ -1708,6 +1731,7 @@ function addMenu() {
 
 function removeMenu(mi) {
   if (!confirm(`确认删除「${navMenus[mi].name}」及其所有子项？`)) return;
+  syncMenusFromForm();
   navMenus.splice(mi, 1);
   renderMenus();
 }
@@ -1715,17 +1739,20 @@ function removeMenu(mi) {
 function moveMenu(mi, dir) {
   const ti = mi + dir;
   if (ti < 0 || ti >= navMenus.length) return;
+  syncMenusFromForm();
   [navMenus[mi], navMenus[ti]] = [navMenus[ti], navMenus[mi]];
   renderMenus();
 }
 
 function addMenuItem(mi) {
+  syncMenusFromForm();
   if (!navMenus[mi].items) navMenus[mi].items = [];
-  navMenus[mi].items.push({ name: '新子项', category: '', background: 'images/banner.webp' });
+  navMenus[mi].items.push({ name: '新子项', category: '', background: '' });
   renderMenus();
 }
 
 function removeMenuItem(mi, ii) {
+  syncMenusFromForm();
   navMenus[mi].items.splice(ii, 1);
   renderMenus();
 }
@@ -1734,6 +1761,7 @@ function moveMenuItem(mi, ii, dir) {
   const items = navMenus[mi].items;
   const ti = ii + dir;
   if (ti < 0 || ti >= items.length) return;
+  syncMenusFromForm();
   [items[ii], items[ti]] = [items[ti], items[ii]];
   renderMenus();
 }
