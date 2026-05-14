@@ -423,8 +423,11 @@ input[type="file"] { display: none; }
                 <input type="text" class="form-control" id="postFilename" placeholder="auto-generated" />
               </div>
               <div class="editor-sidebar-section">
-                <label>封面图 URL（可选）</label>
-                <input type="text" class="form-control" id="postCover" placeholder="https://..." />
+                <label>封面图（可选）</label>
+                <div style="display:flex;gap:6px;">
+                  <input type="text" class="form-control" id="postCover" placeholder="从媒体库选择或填 URL..." style="flex:1;" />
+                  <button class="upload-btn" style="flex-shrink:0;padding:8px 10px;" title="从媒体库选择" onclick="openMb('images/posts/',url=>{document.getElementById('postCover').value=url;})"><i class="ti ti-photo"></i></button>
+                </div>
               </div>
             </div>
           </div>
