@@ -37,14 +37,15 @@ body  { background: #fff !important; }
 #header {
   position: relative !important;
   margin-top: 0 !important;
+  overflow: hidden !important; /* clips banner image to header bounds */
 }
-/* Gradient fades into pure white — no pink */
+/* Gradient fades into pure white */
 #header::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 180px;
-  background: linear-gradient(to bottom, transparent, #fff);
+  height: 200px;
+  background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.85) 70%, #fff 100%);
   pointer-events: none;
   z-index: 10;
 }
@@ -53,6 +54,11 @@ body  { background: #fff !important; }
   z-index: 20;
   background: transparent !important;
   padding-top: 56px !important;
+}
+/* Close any gap between header and content */
+#content {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
 }
 #header-title h1,
 #header-title #subtitle {
