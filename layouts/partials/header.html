@@ -207,6 +207,29 @@
     {{- $avatarSrc = printf "%s%s" ("avatar/" | relURL) $avatarVal -}}
   {{- end -}}
   {{- $posts := (where .Site.RegularPages "Section" "in" .Site.Params.mainSections) -}}
+  <section class="blog-title-hero">
+    <div class="title-art">
+      <svg class="title-decoration" viewBox="0 0 760 260" aria-hidden="true">
+        <path class="deco-line deco-line-left"  d="M90 95 C20 125 42 176 150 156 C228 142 260 90 330 100"/>
+        <path class="deco-line deco-line-right" d="M430 148 C520 118 610 138 666 84"/>
+        <path class="deco-feather" d="M625 88 C660 58 682 36 704 18 C696 54 678 82 642 105 C658 106 673 103 690 96 C674 118 650 130 620 132 C637 144 655 152 676 156 C638 164 604 148 585 120 C597 110 611 100 625 88Z"/>
+        <path class="deco-feather-line" d="M598 121 C630 92 664 56 697 22"/>
+        <circle class="spark spark-1" cx="145" cy="46" r="3"/>
+        <circle class="spark spark-2" cx="668" cy="58" r="3"/>
+        <circle class="spark spark-3" cx="580" cy="166" r="2.5"/>
+      </svg>
+      <h1 class="hero-art-title">
+        <span>记录热爱</span>
+        <span>分享美好</span>
+      </h1>
+    </div>
+    <p class="hero-art-subtitle">
+      <span class="star">✦</span>
+      一个关于生活、技术与梦想的个人博客
+      <span class="star">✦</span>
+    </p>
+  </section>
+
   <div class="hero-profile-card">
     <div class="hero-avatar-wrap">
       <div class="hero-avatar-ring">
@@ -214,7 +237,6 @@
           <img src="{{ $avatarSrc }}" alt="{{ .Site.Params.author }}" class="hero-avatar-img">
         </div>
       </div>
-      <div class="hero-crown">🌸</div>
     </div>
     <div class="hero-name">{{ .Site.Params.author }}</div>
     <div class="hero-bio">{{ .Site.Params.description }}</div>

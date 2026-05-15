@@ -137,15 +137,6 @@ body::after {
   display: block;
 }
 
-/* 小花装饰 */
-.hero-crown {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 18px;
-  line-height: 1;
-}
 
 .hero-name {
   font-size: 17px;
@@ -502,5 +493,133 @@ body::after {
     min-height: 28px !important;
     padding: 5px 11px !important;
     font-size: 12px !important;
+  }
+}
+
+/* ── 首页艺术字标题 ── */
+.blog-title-hero {
+  position: absolute;
+  left: 5%;
+  top: 50%;
+  transform: translateY(-52%);
+  z-index: 10;
+  width: min(500px, 48%);
+  text-align: center;
+  padding: 40px 24px 32px;
+  overflow: visible;
+}
+
+.title-art {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.title-decoration {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 108%;
+  max-width: 820px;
+  height: auto;
+  transform: translate(-50%, -52%);
+  pointer-events: none;
+  z-index: 0;
+  overflow: visible;
+}
+
+.hero-art-title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  font-size: clamp(52px, 7vw, 100px);
+  font-weight: 500;
+  line-height: 0.96;
+  letter-spacing: 0.12em;
+  color: transparent;
+  background: linear-gradient(180deg, #6c8fdb 0%, #8e91df 46%, #b592e9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 12px 28px rgba(122, 143, 220, 0.22))
+          drop-shadow(0 0 32px rgba(176, 147, 233, 0.20));
+}
+
+.hero-art-title span { display: block; }
+.hero-art-title span + span { margin-top: 8px; }
+
+.hero-art-subtitle {
+  position: relative;
+  z-index: 2;
+  margin: 28px 0 0;
+  font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+  font-size: clamp(13px, 1.6vw, 17px);
+  letter-spacing: 0.22em;
+  color: #344261;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75),
+               0 8px 20px rgba(100, 125, 180, 0.20);
+}
+
+.star {
+  margin: 0 10px;
+  color: #7495dc;
+  font-size: 0.9em;
+}
+
+/* SVG 装饰线 */
+.deco-line {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+.deco-line-left  { stroke: rgba(134, 144, 218, 0.46); }
+.deco-line-right { stroke: rgba(216, 139, 188, 0.42); }
+
+.deco-feather {
+  fill: rgba(238, 139, 177, 0.28);
+  stroke: rgba(226, 130, 174, 0.22);
+  stroke-width: 1;
+  filter: drop-shadow(0 8px 18px rgba(220, 132, 180, 0.18));
+}
+.deco-feather-line {
+  fill: none;
+  stroke: rgba(222, 122, 170, 0.38);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.spark   { fill: rgba(255, 156, 203, 0.72); filter: drop-shadow(0 0 8px rgba(255, 156, 203, 0.70)); }
+.spark-2 { fill: rgba(149, 169, 244, 0.72); }
+.spark-3 { fill: rgba(255, 196, 222, 0.78); }
+
+/* 背景光晕 */
+.blog-title-hero::before {
+  content: "";
+  position: absolute;
+  width: 380px;
+  height: 160px;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.42), transparent 66%),
+    radial-gradient(circle at 20% 40%, rgba(142, 170, 255, 0.18), transparent 46%),
+    radial-gradient(circle at 80% 55%, rgba(255, 165, 210, 0.18), transparent 48%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .blog-title-hero {
+    left: 50%;
+    top: 32%;
+    transform: translateX(-50%);
+    width: 90%;
+  }
+  .hero-profile-card {
+    top: auto;
+    bottom: 6%;
+    right: 50%;
+    transform: translateX(50%);
   }
 }
