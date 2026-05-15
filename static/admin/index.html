@@ -321,6 +321,9 @@ input[type="file"] { display: none; }
       <div class="nav-item" onclick="showPage('menus')">
         <i class="ti ti-layout-navbar"></i> 菜单管理
       </div>
+      <div class="nav-item" onclick="showPage('sections')">
+        <i class="ti ti-category"></i> 分类页管理
+      </div>
       <div class="nav-item" onclick="showPage('settings')">
         <i class="ti ti-settings"></i> 博客设置
       </div>
@@ -654,6 +657,120 @@ input[type="file"] { display: none; }
       </div>
     </div>
 
+    <!-- 分类页管理 -->
+    <div class="page" id="page-sections">
+      <div class="page-header">
+        <div><div class="page-title">分类页管理</div><div class="page-subtitle">管理各级分类目录的模板、封面、描述等配置</div></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-secondary" onclick="toggleNewSecForm()"><i class="ti ti-folder-plus"></i> 新建分类</button>
+          <button class="btn btn-secondary" onclick="loadSections()"><i class="ti ti-refresh"></i> 刷新</button>
+        </div>
+      </div>
+
+      <!-- 新建表单 -->
+      <div class="card" id="newSecForm" style="display:none;margin-bottom:16px;">
+        <div class="card-header"><h3>新建分类目录</h3></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div>
+              <label class="form-label">目录路径 <span style="color:var(--text-muted);font-size:11px;">（相对 content/，如 knowledge/tech）</span></label>
+              <input type="text" class="form-control" id="newSecPath" placeholder="knowledge/tech">
+            </div>
+            <div>
+              <label class="form-label">标题</label>
+              <input type="text" class="form-control" id="newSecTitle" placeholder="科技">
+            </div>
+            <div>
+              <label class="form-label">描述</label>
+              <input type="text" class="form-control" id="newSecDesc" placeholder="简短介绍这个分类">
+            </div>
+            <div>
+              <label class="form-label">页面模板</label>
+              <select class="form-control" id="newSecLayout" style="padding:10px 14px;">
+                <option value="">默认（文章列表）</option>
+                <option value="section-cards">section-cards（卡片分类页）</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">封面图</label>
+              <div style="display:flex;gap:6px;">
+                <input type="text" class="form-control" id="newSecCover" placeholder="images/tech.webp 或 COS URL" style="flex:1;">
+                <button class="upload-btn" style="padding:8px 10px;" title="从媒体库选择" onclick="openMb('images/',url=>{document.getElementById('newSecCover').value=url;})"><i class="ti ti-photo"></i></button>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">卡片符号 <span style="color:var(--text-muted);font-size:11px;">（卡片中央显示的字或 emoji）</span></label>
+              <input type="text" class="form-control" id="newSecSymbol" placeholder="科 / AI / 🎵">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn btn-secondary" onclick="document.getElementById('newSecForm').style.display='none'">取消</button>
+            <button class="btn btn-primary" onclick="createNewSection()"><i class="ti ti-plus"></i> 创建</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 编辑面板 -->
+      <div class="card" id="secEditorPanel" style="display:none;margin-bottom:16px;border-color:var(--red-light);">
+        <div class="card-header">
+          <h3 id="secEditorTitle">编辑分类页</h3>
+          <button class="btn btn-secondary btn-sm" onclick="closeSectionEditor()"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="card-body">
+          <input type="hidden" id="secIdx">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div>
+              <label class="form-label">标题</label>
+              <input type="text" class="form-control" id="secTitle">
+            </div>
+            <div>
+              <label class="form-label">页面模板</label>
+              <select class="form-control" id="secLayout" style="padding:10px 14px;">
+                <option value="">默认（文章列表）</option>
+                <option value="section-cards">section-cards（卡片分类页）</option>
+              </select>
+            </div>
+            <div style="grid-column:1/-1;">
+              <label class="form-label">描述</label>
+              <input type="text" class="form-control" id="secDesc" placeholder="这个分类的简短介绍">
+            </div>
+            <div>
+              <label class="form-label">封面图</label>
+              <div style="display:flex;gap:6px;">
+                <input type="text" class="form-control" id="secCover" style="flex:1;">
+                <button class="upload-btn" style="padding:8px 10px;" title="从媒体库选择" onclick="openMb('images/',url=>{document.getElementById('secCover').value=url;})"><i class="ti ti-photo"></i></button>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">卡片符号</label>
+              <input type="text" class="form-control" id="secSymbol" placeholder="科 / AI / 🎵">
+            </div>
+            <div>
+              <label class="form-label">父级标题 <span style="color:var(--text-muted);font-size:11px;">（面包屑显示）</span></label>
+              <input type="text" class="form-control" id="secParentTitle" placeholder="知识">
+            </div>
+            <div>
+              <label class="form-label">父级 URL</label>
+              <input type="text" class="form-control" id="secParentUrl" placeholder="/knowledge/">
+            </div>
+            <div>
+              <label class="form-label">最新文章显示数量</label>
+              <input type="number" class="form-control" id="secRecentCount" value="4" min="1" max="20">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn btn-secondary" onclick="closeSectionEditor()">取消</button>
+            <button class="btn btn-primary" id="secSaveBtn" onclick="saveSectionEditor()"><i class="ti ti-device-floppy"></i> 保存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分类列表 -->
+      <div id="sectionsList">
+        <div class="loading"><i class="ti ti-loader"></i>加载中...</div>
+      </div>
+    </div>
+
     <!-- 菜单管理 -->
     <div class="page" id="page-menus">
       <div class="page-header">
@@ -898,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===== 页面切换 =====
-const pageNavMap = { dashboard: 0, posts: 1, editor: 2, appearance: 3, social: 4, theme: 5, taxonomy: 6, menus: 7, settings: 8 };
+const pageNavMap = { dashboard: 0, posts: 1, editor: 2, appearance: 3, social: 4, theme: 5, taxonomy: 6, menus: 7, sections: 8, settings: 9 };
 
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -909,6 +1026,7 @@ function showPage(page) {
   if (idx !== undefined && items[idx]) items[idx].classList.add('active');
   if (page === 'taxonomy') loadTaxonomy();
   if (page === 'social') loadSocialUI();
+  if (page === 'sections') loadSections();
 }
 
 // ===== GitHub API =====
@@ -1883,6 +2001,159 @@ async function saveMenus() {
     btn.disabled = false;
     btn.innerHTML = '<i class="ti ti-device-floppy"></i> 保存';
   }
+}
+
+// ===== 分类页管理 =====
+let sectionsData = [];
+
+function toggleNewSecForm() {
+  const f = document.getElementById('newSecForm');
+  f.style.display = f.style.display === 'none' ? '' : 'none';
+}
+
+async function loadSections() {
+  const el = document.getElementById('sectionsList');
+  if (!el) return;
+  el.innerHTML = '<div class="loading"><i class="ti ti-loader"></i>扫描分类目录...</div>';
+  try {
+    const tree = await apiGet(`repos/${REPO}/git/trees/main?recursive=1`);
+    const idxFiles = (tree.tree || []).filter(f =>
+      f.type === 'blob' &&
+      f.path.startsWith('content/') &&
+      f.path.endsWith('/_index.md') &&
+      f.path !== 'content/_index.md'
+    );
+    sectionsData = [];
+    for (const f of idxFiles) {
+      try {
+        const file = await apiGet(`repos/${REPO}/contents/${f.path}`);
+        const { meta, body } = parseFrontmatter(b64decode(file.content));
+        sectionsData.push({ path: f.path, sha: file.sha, meta, body });
+      } catch { sectionsData.push({ path: f.path, sha: '', meta: {}, body: '' }); }
+    }
+    renderSections();
+  } catch(e) {
+    el.innerHTML = `<div class="empty"><i class="ti ti-folder-off"></i>加载失败：${esc(e.message)}</div>`;
+  }
+}
+
+function renderSections() {
+  const el = document.getElementById('sectionsList');
+  if (!el) return;
+  if (!sectionsData.length) {
+    el.innerHTML = '<div class="empty"><i class="ti ti-folder-off"></i>暂无分类目录<br><small style="margin-top:8px;display:block;color:var(--text-muted);">点击右上角「新建分类」创建第一个</small></div>';
+    return;
+  }
+  el.innerHTML = sectionsData.map((s, idx) => {
+    const displayPath = s.path.replace('content/', '').replace('/_index.md', '');
+    const layout = s.meta.layout || '默认';
+    const title = s.meta.title || displayPath;
+    return `
+    <div class="card" style="margin-bottom:10px;">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+          <i class="ti ti-folder" style="color:var(--text-muted);flex-shrink:0;"></i>
+          <div style="min-width:0;">
+            <div style="font-weight:600;font-size:14px;">${esc(title)}</div>
+            <div style="font-size:12px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              /${esc(displayPath)}/ &nbsp;·&nbsp; 模板：${esc(layout)}
+              ${s.meta.cover ? '&nbsp;·&nbsp;<i class="ti ti-photo" style="font-size:11px;"></i> 有封面' : ''}
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="openSectionEditor(${idx})">
+          <i class="ti ti-edit"></i> 编辑
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openSectionEditor(idx) {
+  const s = sectionsData[idx];
+  const m = s.meta;
+  const displayPath = s.path.replace('content/', '').replace('/_index.md', '');
+  document.getElementById('secEditorTitle').textContent = `编辑：/${displayPath}/`;
+  document.getElementById('secIdx').value = idx;
+  document.getElementById('secTitle').value = m.title || '';
+  document.getElementById('secDesc').value = m.description || '';
+  document.getElementById('secLayout').value = m.layout || '';
+  document.getElementById('secCover').value = m.cover || '';
+  document.getElementById('secSymbol').value = m.symbol || '';
+  document.getElementById('secParentTitle').value = m.parent_title || '';
+  document.getElementById('secParentUrl').value = m.parent_url || '';
+  document.getElementById('secRecentCount').value = m.recent_count || 4;
+  document.getElementById('secEditorPanel').style.display = '';
+  document.getElementById('secEditorPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeSectionEditor() {
+  document.getElementById('secEditorPanel').style.display = 'none';
+}
+
+async function saveSectionEditor() {
+  const idx = parseInt(document.getElementById('secIdx').value);
+  const s = sectionsData[idx];
+  const fields = {
+    title:        document.getElementById('secTitle').value.trim(),
+    description:  document.getElementById('secDesc').value.trim(),
+    layout:       document.getElementById('secLayout').value,
+    cover:        document.getElementById('secCover').value.trim(),
+    symbol:       document.getElementById('secSymbol').value.trim(),
+    parent_title: document.getElementById('secParentTitle').value.trim(),
+    parent_url:   document.getElementById('secParentUrl').value.trim(),
+    recent_count: document.getElementById('secRecentCount').value,
+  };
+  let fm = '---\n';
+  for (const [k, v] of Object.entries(fields)) {
+    if (!v && v !== 0) continue;
+    fm += `${k}: "${String(v).replace(/\\/g,'\\\\').replace(/"/g,'\\"')}"\n`;
+  }
+  fm += '---\n';
+  if (s.body) fm += '\n' + s.body;
+
+  const btn = document.getElementById('secSaveBtn');
+  btn.disabled = true;
+  try {
+    const body = { message: `config: 更新分类页 ${s.path}`, content: b64encode(fm) };
+    if (s.sha) body.sha = s.sha;
+    const res = await apiPut(`repos/${REPO}/contents/${s.path}`, body);
+    s.sha = res.content.sha;
+    s.meta = fields;
+    showToast('✅ 已保存，等待部署...', 'success');
+    closeSectionEditor();
+    renderSections();
+  } catch(e) { showToast('❌ 保存失败：' + e.message, 'error'); }
+  finally { btn.disabled = false; }
+}
+
+async function createNewSection() {
+  const rawPath = document.getElementById('newSecPath').value.trim().replace(/^\/|\/$/g, '');
+  if (!rawPath) { showToast('请填写目录路径', 'error'); return; }
+  const fullPath = `content/${rawPath}/_index.md`;
+  const fields = {
+    title:       document.getElementById('newSecTitle').value.trim() || rawPath.split('/').pop(),
+    description: document.getElementById('newSecDesc').value.trim(),
+    layout:      document.getElementById('newSecLayout').value,
+    cover:       document.getElementById('newSecCover').value.trim(),
+    symbol:      document.getElementById('newSecSymbol').value.trim(),
+  };
+  let fm = '---\n';
+  for (const [k, v] of Object.entries(fields)) {
+    if (!v) continue;
+    fm += `${k}: "${String(v).replace(/\\/g,'\\\\').replace(/"/g,'\\"')}"\n`;
+  }
+  fm += '---\n';
+  try {
+    await apiPut(`repos/${REPO}/contents/${fullPath}`, {
+      message: `feat: 新建分类页 ${fullPath}`,
+      content: b64encode(fm),
+    });
+    showToast('✅ 已创建，刷新列表中...', 'success');
+    document.getElementById('newSecForm').style.display = 'none';
+    document.getElementById('newSecPath').value = '';
+    await loadSections();
+  } catch(e) { showToast('❌ 创建失败：' + e.message, 'error'); }
 }
 
 // ===== Toast 提示 =====
