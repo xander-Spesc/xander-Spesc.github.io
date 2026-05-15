@@ -15,8 +15,8 @@
           slug: verilog
           symbol: ''
           cover: https://xuejian-1432996375.cos.ap-beijing.myqcloud.com/verilog.png
-        - name: C++
-          slug: C++
+        - name: Cpp
+          slug: Cpp
           symbol: ''
           cover: https://xuejian-1432996375.cos.ap-beijing.myqcloud.com/c++.png
         - name: python
