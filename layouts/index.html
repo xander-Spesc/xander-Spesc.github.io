@@ -1,2 +1,20 @@
 {{- define "main" -}}
+<style>
+  /* 主页：只保留全屏 hero + 导航，其余全隐 */
+  #sidebar,
+  #footer,
+  footer,
+  .sidebar-top,
+  #mask {
+    display: none !important;
+  }
+  #content {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+  }
+  #main {
+    display: none !important;
+  }
+</style>
 {{- end -}}
