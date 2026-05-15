@@ -46,6 +46,7 @@
           <img src="{{ $cardCover | relURL }}" alt="{{ .Title }}">
           {{- end -}}
           <div class="sc-card-mask"></div>
+          <div class="sc-card-symbol">{{ substr .Title 0 1 }}</div>
         </div>
         <div class="sc-card-body">
           <h3>{{ .Title }}</h3>
