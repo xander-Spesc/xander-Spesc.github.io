@@ -1,41 +1,118 @@
 /* =====================================================
-   Light Glass Theme
+   梦幻渐变 · 毛玻璃 · 日系清透
    ===================================================== */
 
-/* ── Page background ── */
-body, html, #container, #wrap, #content, #main, .main {
-  background: #faf7f7 !important;
-  background-image: none !important;
+/* ── CSS 变量：全站色彩系统 ── */
+:root {
+  --bg-base:    #f5f9ff;
+  --bg-soft:    #fff7fb;
+  --bg-lavender:#f6f1ff;
+
+  --text-main:      #3f4a63;
+  --text-secondary: #76839f;
+  --text-muted:     #9aa6bd;
+
+  --primary:      #8da2ff;
+  --primary-soft: #dfe6ff;
+  --secondary:    #ff9fc7;
+  --secondary-soft:#ffe2ee;
+  --accent:       #86d6ff;
+
+  --tag-blue:   rgba(141, 190, 255, 0.28);
+  --tag-pink:   rgba(255, 159, 199, 0.28);
+  --tag-purple: rgba(184, 160, 255, 0.28);
+  --tag-green:  rgba(151, 222, 181, 0.25);
+  --tag-yellow: rgba(255, 221, 145, 0.25);
+
+  --glass-bg:        rgba(255, 255, 255, 0.52);
+  --glass-bg-strong: rgba(255, 255, 255, 0.68);
+  --glass-border:    rgba(255, 255, 255, 0.72);
+  --glass-shadow:    0 18px 50px rgba(112, 139, 180, 0.18);
+  --glass-shadow-soft: 0 10px 30px rgba(112, 139, 180, 0.12);
+
+  --radius-sm:   12px;
+  --radius-md:   18px;
+  --radius-lg:   28px;
+  --radius-pill: 999px;
 }
 
-/* ── Navigation: frosted glass, fixed ── */
+/* ── 全站背景：梦幻渐变 fixed ── */
+html {
+  background: var(--bg-base) !important;
+}
+
+body,
+#container,
+#wrap {
+  color: var(--text-main) !important;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(134, 214, 255, 0.38) 0%, transparent 34%),
+    radial-gradient(circle at 84% 8%,  rgba(255, 159, 199, 0.30) 0%, transparent 30%),
+    radial-gradient(circle at 50% 82%, rgba(184, 160, 255, 0.22) 0%, transparent 42%),
+    linear-gradient(180deg, #eef8ff 0%, #fff7fb 52%, #f7f2ff 100%) !important;
+  background-attachment: fixed !important;
+}
+
+/* 内容区透明，让固定渐变透出 */
+#content,
+#main,
+.main {
+  background: transparent !important;
+}
+
+/* 细点纹理层 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.75) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(255,180,215,0.40) 0 1px, transparent 1.5px);
+  background-size: 72px 72px, 110px 110px;
+  background-position: 0 0, 36px 48px;
+  opacity: 0.4;
+}
+
+/* ── 导航栏：悬浮毛玻璃胶囊 ── */
 #header-nav {
   position: fixed !important;
-  top: 0; left: 0; right: 0;
+  top: 14px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  width: min(1080px, calc(100% - 32px)) !important;
+  border-radius: var(--radius-pill) !important;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.72) !important;
-  backdrop-filter: blur(18px) saturate(1.8) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.8) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
-  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.06) !important;
+  background: rgba(255, 255, 255, 0.62) !important;
+  border: 1px solid rgba(255, 255, 255, 0.76) !important;
+  box-shadow: 0 14px 38px rgba(112, 139, 180, 0.16) !important;
+  backdrop-filter: blur(22px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(180%) !important;
+  padding: 0 28px !important;
 }
-.main-nav-link { color: #3a3a3a !important; }
-.main-nav-link-wrap:hover .main-nav-link { color: #c0392b !important; }
-.main-nav-icon { color: #c0392b !important; }
+.main-nav-link       { color: var(--text-main) !important; }
+.main-nav-link-wrap:hover .main-nav-link { color: #ec6fa6 !important; }
+.main-nav-icon       { color: var(--secondary) !important; }
 
-/* Dropdown */
+/* 下拉菜单 */
 .reimu-dropdown {
-  background: rgba(255,255,255,0.92) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: var(--glass-shadow-soft) !important;
 }
-.reimu-dropdown::after { border-bottom-color: rgba(255,255,255,0.92) !important; }
-.reimu-dropdown-item { color: #444 !important; }
-.reimu-dropdown-item:hover { background: #fff0f0 !important; color: #c0392b !important; }
+.reimu-dropdown::after  { border-bottom-color: rgba(255,255,255,0.88) !important; }
+.reimu-dropdown-item    { color: var(--text-secondary) !important; }
+.reimu-dropdown-item:hover {
+  background: rgba(255, 159, 199, 0.12) !important;
+  color: #ec6fa6 !important;
+  padding-left: 26px;
+}
 
-/* ── Hero: full viewport ── */
+/* ── Hero：全屏图片 ── */
 #header {
   position: relative !important;
   margin-top: 0 !important;
@@ -43,7 +120,6 @@ body, html, #container, #wrap, #content, #main, .main {
   height: 100vh !important;
 }
 
-/* Image / video fills header */
 #header > img,
 #header > picture > img,
 .header-video {
@@ -55,81 +131,91 @@ body, html, #container, #wrap, #content, #main, .main {
   z-index: 0;
 }
 
-/* Bottom gradient: image fades into page bg */
+/* 底部渐变融入背景（终点与 body 渐变顶色一致） */
 #header::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 40%;
+  height: 42%;
   background: linear-gradient(to bottom,
-    rgba(250, 247, 247, 0)    0%,
-    rgba(250, 247, 247, 0.3)  40%,
-    rgba(250, 247, 247, 0.75) 72%,
-    #faf7f7                   100%);
+    rgba(238, 248, 255, 0)    0%,
+    rgba(238, 248, 255, 0.30) 42%,
+    rgba(238, 248, 255, 0.78) 72%,
+    #eef8ff                   100%);
   pointer-events: none;
   z-index: 1;
 }
 
-/* Title sits above gradient */
+/* 标题在渐变层上 */
 #header-outer {
   position: relative !important;
   z-index: 2 !important;
   background: transparent !important;
-  padding-top: 56px !important;
-}
-#header-title h1,
-#header-title #subtitle {
-  color: #fff !important;
-  text-shadow: 0 2px 16px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.25) !important;
+  padding-top: 72px !important;
 }
 
-/* No gap between hero and content */
+/* 标题：渐变文字（仅当有文字时好看，banner 上用白+阴影也可） */
+#header-title h1 {
+  color: #fff !important;
+  text-shadow: 0 2px 20px rgba(80, 60, 140, 0.5), 0 1px 6px rgba(0,0,0,0.3) !important;
+}
+#header-title #subtitle {
+  color: rgba(255, 255, 255, 0.88) !important;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.35) !important;
+}
+
 #content { margin-top: 0 !important; padding-top: 0 !important; }
 
-/* ── Post cards: white glass + hover lift ── */
+/* ── 文章卡片：毛玻璃 + 上浮 hover ── */
 .post-wrap {
-  background: rgba(255, 255, 255, 0.88) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.98) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07),
-              0 1px 4px rgba(0, 0, 0, 0.04) !important;
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.35s ease !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(18px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--glass-shadow-soft) !important;
+  transition: transform 0.26s ease, box-shadow 0.26s ease, background 0.26s ease !important;
 }
 .post-wrap:hover {
-  transform: translateY(-8px) !important;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.11),
-              0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  transform: translateY(-6px) !important;
+  background: var(--glass-bg-strong) !important;
+  box-shadow: var(--glass-shadow) !important;
 }
 .post-info { background: transparent !important; }
-.post-title, .post-title a { color: #2c2c2c !important; }
-.post-article, .post-article * { color: #666 !important; }
-.post-meta span { color: #bbb !important; }
+.post-title, .post-title a { color: var(--text-main) !important; font-weight: 700 !important; }
+.post-article, .post-article * { color: var(--text-secondary) !important; }
+.post-meta span { color: var(--text-muted) !important; }
 
-/* ── Sidebar: white glass, large radius ── */
+/* ── 侧边栏：毛玻璃大卡 ── */
 .widget {
-  background: rgba(255, 255, 255, 0.78) !important;
-  backdrop-filter: blur(18px) saturate(1.3) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.3) !important;
-  border-radius: 24px !important;
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.06),
-              0 2px 8px rgba(0, 0, 0, 0.03) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(24px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(170%) !important;
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
 }
 .widget-title {
-  color: #2c2c2c !important;
-  border-color: rgba(192, 57, 43, 0.10) !important;
+  color: var(--text-main) !important;
+  border-color: rgba(141, 162, 255, 0.18) !important;
 }
-.widget a { color: #555 !important; }
-.widget a:hover { color: #c0392b !important; }
-.widget li { color: #777 !important; }
+.widget a       { color: var(--text-secondary) !important; }
+.widget a:hover { color: #ec6fa6 !important; }
+.widget li      { color: var(--text-muted) !important; }
 
-/* Sidebar tag capsules: floating animation */
+/* 头像柔光描边 */
+.widget img,
+#profile-image {
+  border-radius: 50% !important;
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.65),
+    0 0 28px rgba(255, 143, 190, 0.42) !important;
+}
+
+/* ── 标签胶囊：毛玻璃 + 漂浮动画 ── */
 @keyframes tag-float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-4px); }
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
 }
 
 .widget .btn,
@@ -138,53 +224,82 @@ body, html, #container, #wrap, #content, #main, .main {
 .widget [class*="tag"],
 .widget [class*="menu-link"],
 .widget .sidebar-menu-item,
-.tagcloud a {
-  display: inline-block !important;
-  background: rgba(192, 57, 43, 0.07) !important;
-  color: #c0392b !important;
-  border: 1px solid rgba(192, 57, 43, 0.15) !important;
-  border-radius: 20px !important;
-  box-shadow: none !important;
-  animation: tag-float 3.2s ease-in-out infinite !important;
-  transition: background 0.2s, transform 0.2s !important;
+.tagcloud a,
+.tag-cloud-list a {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 32px !important;
+  padding: 6px 14px !important;
+  border-radius: var(--radius-pill) !important;
+  color: var(--text-secondary) !important;
+  font-size: 13px !important;
+  text-decoration: none !important;
+  background: rgba(255, 255, 255, 0.42) !important;
+  border: 1px solid rgba(255, 255, 255, 0.70) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 6px 18px rgba(112, 139, 180, 0.12) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  animation: tag-float 3.4s ease-in-out infinite !important;
+  transition: background 0.22s, color 0.22s, box-shadow 0.22s !important;
 }
 
-/* Stagger the float so tags don't all move in sync */
-.widget [class*="tag"]:nth-child(2n),
-.tagcloud a:nth-child(2n)  { animation-delay: 0.6s !important; }
-.widget [class*="tag"]:nth-child(3n),
-.tagcloud a:nth-child(3n)  { animation-delay: 1.2s !important; }
-.widget [class*="tag"]:nth-child(4n),
-.tagcloud a:nth-child(4n)  { animation-delay: 0.3s !important; }
-.widget [class*="tag"]:nth-child(5n),
-.tagcloud a:nth-child(5n)  { animation-delay: 1.8s !important; }
+/* 错位延迟，各标签不同步 */
+.widget [class*="tag"]:nth-child(2n), .tagcloud a:nth-child(2n) { animation-delay: 0.55s !important; }
+.widget [class*="tag"]:nth-child(3n), .tagcloud a:nth-child(3n) { animation-delay: 1.15s !important; }
+.widget [class*="tag"]:nth-child(4n), .tagcloud a:nth-child(4n) { animation-delay: 0.30s !important; }
+.widget [class*="tag"]:nth-child(5n), .tagcloud a:nth-child(5n) { animation-delay: 1.75s !important; }
+.widget [class*="tag"]:nth-child(6n), .tagcloud a:nth-child(6n) { animation-delay: 0.90s !important; }
 
 .widget .btn:hover,
 .widget button:hover,
 .widget .tag:hover,
 .widget [class*="tag"]:hover,
-.tagcloud a:hover {
-  background: rgba(192, 57, 43, 0.16) !important;
+.tagcloud a:hover,
+.tag-cloud-list a:hover {
+  color: #ec6fa6 !important;
+  background: rgba(255, 255, 255, 0.65) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 10px 26px rgba(255, 143, 190, 0.24) !important;
   animation-play-state: paused !important;
 }
 
 /* ── Footer ── */
 #footer, footer {
-  background: #faf7f7 !important;
-  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
-  color: #bbb !important;
+  background: rgba(238, 248, 255, 0.85) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.6) !important;
+  color: var(--text-muted) !important;
 }
-#footer a, footer a { color: #c0392b !important; }
+#footer a, footer a { color: var(--primary) !important; }
 
-/* ── Pagination ── */
+/* ── 分页 ── */
 .page-number, .extend {
-  background: rgba(255, 255, 255, 0.88) !important;
-  color: #666 !important;
-  border: 1px solid rgba(0, 0, 0, 0.07) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+  background: var(--glass-bg) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow-soft) !important;
+  border-radius: var(--radius-sm) !important;
 }
 .page-number.current {
-  background: #c0392b !important;
+  background: linear-gradient(100deg, var(--primary), var(--secondary)) !important;
   color: #fff !important;
-  border-color: #c0392b !important;
+  border-color: transparent !important;
+}
+
+/* ── 移动端适配 ── */
+@media (max-width: 768px) {
+  #header-nav {
+    top: 8px !important;
+    width: calc(100% - 20px) !important;
+    border-radius: 24px !important;
+    padding: 0 16px !important;
+  }
+  .widget .tag,
+  .tagcloud a {
+    min-height: 28px !important;
+    padding: 5px 11px !important;
+    font-size: 12px !important;
+  }
 }
