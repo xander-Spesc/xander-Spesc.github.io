@@ -2132,26 +2132,28 @@ async function createSectionIndexFiles(menus) {
     for (const item of (menu.items || [])) {
       if (item._layout !== 'section-cards' || !item._path) continue;
       const path = item._path.replace(/^\/|\/$/g, '');
-      tasks.push(createOrUpdateIndexMd(`content/${path}/_index.md`, buildIndexMd({
+      tasks.push({ filePath: `content/${path}/_index.md`, content: buildIndexMd({
         title: item.name,
         description: item._desc || '',
         layout: 'section-cards',
         cover: item._cover || '',
-      })));
+      })});
       for (const sub of (item._subcats || [])) {
         if (!sub.slug) continue;
-        tasks.push(createOrUpdateIndexMd(`content/${path}/${sub.slug}/_index.md`, buildIndexMd({
+        tasks.push({ filePath: `content/${path}/${sub.slug}/_index.md`, content: buildIndexMd({
           title: sub.name || sub.slug,
           symbol: sub.symbol || '',
           cover: sub.cover || '',
           layout: 'section-cards',
           parent_title: item.name,
           parent_url: `/${path}/`,
-        })));
+        })});
       }
     }
   }
-  if (tasks.length) await Promise.all(tasks);
+  for (const { filePath, content } of tasks) {
+    await createOrUpdateIndexMd(filePath, content);
+  }
 }
 
 async function saveMenus() {
