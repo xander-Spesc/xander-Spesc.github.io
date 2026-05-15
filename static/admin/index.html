@@ -1784,49 +1784,131 @@ function renderMenus() {
 
 function renderMenuItems(items, mi) {
   if (!items.length) return '<div style="color:var(--text-muted);font-size:13px;padding:4px 0;">暂无子项，点击下方添加</div>';
-  return items.map((item, ii) => `
-    <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;background:var(--bg);">
+  return items.map((item, ii) => {
+    const type = item._layout === 'section-cards' ? 'section' : (item.url && !item.category ? 'url' : 'category');
+    const subcats = item._subcats || [];
+    return `
+    <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;background:var(--bg);">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
         <div>
           <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">子项名称</label>
-          <input type="text" class="form-control" value="${esc(item.name||'')}" id="itemName-${mi}-${ii}" placeholder="如：技术笔记" />
+          <input type="text" class="form-control" value="${esc(item.name||'')}" id="itemName-${mi}-${ii}" placeholder="如：科技" />
         </div>
         <div>
           <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">链接类型</label>
           <select class="form-control" id="itemType-${mi}-${ii}" onchange="toggleItemType(${mi},${ii},this.value)" style="padding:10px 14px;">
-            <option value="category" ${!item.url?'selected':''}>分类页</option>
-            <option value="url" ${item.url?'selected':''}>自定义 URL</option>
+            <option value="category" ${type==='category'?'selected':''}>分类页（taxonomy）</option>
+            <option value="url" ${type==='url'?'selected':''}>自定义 URL</option>
+            <option value="section" ${type==='section'?'selected':''}>section-cards 分类页</option>
           </select>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-        <div id="itemCatWrap-${mi}-${ii}" ${item.url?'style="display:none"':''}>
-          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">分类标识（category slug）</label>
-          <input type="text" class="form-control" value="${esc(item.category||'')}" id="itemCat-${mi}-${ii}" placeholder="tech / life / thoughts" />
-        </div>
-        <div id="itemUrlWrap-${mi}-${ii}" ${!item.url?'style="display:none"':''}>
-          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">自定义 URL</label>
-          <input type="text" class="form-control" value="${esc(item.url||'')}" id="itemUrl-${mi}-${ii}" placeholder="/archives/ 或 /about/" />
-        </div>
-        <div>
-          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">背景图</label>
-          <div style="display:flex;gap:6px;align-items:center;">
-            <input type="text" class="form-control" value="${esc(item.background||'')}" id="itemBg-${mi}-${ii}" placeholder="images/banner.webp 或 COS URL" style="flex:1;" />
-            <button class="upload-btn" style="flex-shrink:0;padding:8px 10px;" title="从媒体库选择" onclick="openMb('images/nav/',url=>{document.getElementById('itemBg-${mi}-${ii}').value=url;})"><i class="ti ti-photo"></i></button>
+
+      <div id="itemCatWrap-${mi}-${ii}" ${type!=='category'?'style="display:none"':''}>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">分类标识（category slug）</label>
+            <input type="text" class="form-control" value="${esc(item.category||'')}" id="itemCat-${mi}-${ii}" placeholder="tech / life" />
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">背景图</label>
+            <div style="display:flex;gap:6px;">
+              <input type="text" class="form-control" value="${esc(item.background||'')}" id="itemBg-${mi}-${ii}" style="flex:1;" placeholder="images/banner.webp" />
+              <button class="upload-btn" style="padding:8px 10px;" onclick="openMb('images/nav/',url=>{document.getElementById('itemBg-${mi}-${ii}').value=url;})"><i class="ti ti-photo"></i></button>
+            </div>
           </div>
         </div>
       </div>
-      <div style="display:flex;justify-content:flex-end;gap:6px;">
+
+      <div id="itemUrlWrap-${mi}-${ii}" ${type!=='url'?'style="display:none"':''}>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">自定义 URL</label>
+          <input type="text" class="form-control" value="${esc(item.url||'')}" id="itemUrl-${mi}-${ii}" placeholder="/archives/ 或 /about/" />
+        </div>
+      </div>
+
+      <div id="itemSectionWrap-${mi}-${ii}" ${type!=='section'?'style="display:none"':''}>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">内容路径 <span style="font-weight:400;color:#bbb;">（相对 content/，决定 URL 和文件位置）</span></label>
+            <input type="text" class="form-control" value="${esc(item._path||'')}" id="itemPath-${mi}-${ii}" placeholder="knowledge/tech" />
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">封面图</label>
+            <div style="display:flex;gap:6px;">
+              <input type="text" class="form-control" value="${esc(item._cover||'')}" id="itemSectionCover-${mi}-${ii}" style="flex:1;" placeholder="images/tech.webp" />
+              <button class="upload-btn" style="padding:8px 10px;" onclick="openMb('images/',url=>{document.getElementById('itemSectionCover-${mi}-${ii}').value=url;})"><i class="ti ti-photo"></i></button>
+            </div>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">描述</label>
+            <input type="text" class="form-control" value="${esc(item._desc||'')}" id="itemSectionDesc-${mi}-${ii}" placeholder="这个分类的简短介绍" />
+          </div>
+        </div>
+        <div style="border-top:1px dashed var(--border);padding-top:12px;margin-top:4px;">
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+            <i class="ti ti-sitemap"></i> 三级分类（页面上显示为卡片）
+          </div>
+          <div id="subcatList-${mi}-${ii}">${renderSubcats(subcats, mi, ii)}</div>
+          <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="addSubcat(${mi},${ii})">
+            <i class="ti ti-plus"></i> 添加三级分类
+          </button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
         <button class="action-btn" onclick="moveMenuItem(${mi},${ii},-1)" title="上移"><i class="ti ti-arrow-up"></i></button>
         <button class="action-btn" onclick="moveMenuItem(${mi},${ii},1)" title="下移"><i class="ti ti-arrow-down"></i></button>
         <button class="action-btn del" onclick="removeMenuItem(${mi},${ii})"><i class="ti ti-trash"></i> 删除</button>
       </div>
+    </div>`;
+  }).join('');
+}
+
+function renderSubcats(subcats, mi, ii) {
+  if (!subcats.length) return '<div style="color:var(--text-muted);font-size:12px;padding:2px 0;">暂无三级分类，点击下方添加</div>';
+  return subcats.map((s, si) => `
+    <div style="display:grid;grid-template-columns:1fr 90px 70px 1fr auto;gap:8px;align-items:end;margin-bottom:8px;padding:10px;background:rgba(0,0,0,0.02);border-radius:8px;border:1px solid var(--border);">
+      <div>
+        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">名称</label>
+        <input type="text" class="form-control" value="${esc(s.name||'')}" id="subcat-name-${mi}-${ii}-${si}" placeholder="AI" style="padding:8px 10px;font-size:13px;" />
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">路径 slug</label>
+        <input type="text" class="form-control" value="${esc(s.slug||'')}" id="subcat-slug-${mi}-${ii}-${si}" placeholder="ai" style="padding:8px 10px;font-size:13px;" />
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">符号</label>
+        <input type="text" class="form-control" value="${esc(s.symbol||'')}" id="subcat-symbol-${mi}-${ii}-${si}" placeholder="AI" style="padding:8px 10px;font-size:13px;" />
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">封面图</label>
+        <div style="display:flex;gap:4px;">
+          <input type="text" class="form-control" value="${esc(s.cover||'')}" id="subcat-cover-${mi}-${ii}-${si}" placeholder="images/..." style="flex:1;padding:8px 10px;font-size:13px;" />
+          <button class="upload-btn" style="padding:6px 8px;" onclick="openMb('images/',url=>{document.getElementById('subcat-cover-${mi}-${ii}-${si}').value=url;})"><i class="ti ti-photo"></i></button>
+        </div>
+      </div>
+      <button class="action-btn del" onclick="removeSubcat(${mi},${ii},${si})" title="删除"><i class="ti ti-trash"></i></button>
     </div>`).join('');
 }
 
 function toggleItemType(mi, ii, type) {
-  document.getElementById(`itemCatWrap-${mi}-${ii}`).style.display = type === 'category' ? '' : 'none';
-  document.getElementById(`itemUrlWrap-${mi}-${ii}`).style.display = type === 'url' ? '' : 'none';
+  document.getElementById(`itemCatWrap-${mi}-${ii}`).style.display     = type === 'category' ? '' : 'none';
+  document.getElementById(`itemUrlWrap-${mi}-${ii}`).style.display     = type === 'url'      ? '' : 'none';
+  document.getElementById(`itemSectionWrap-${mi}-${ii}`).style.display = type === 'section'  ? '' : 'none';
+}
+
+function addSubcat(mi, ii) {
+  syncMenusFromForm();
+  if (!navMenus[mi].items[ii]._subcats) navMenus[mi].items[ii]._subcats = [];
+  navMenus[mi].items[ii]._subcats.push({ name: '', slug: '', symbol: '', cover: '' });
+  renderMenus();
+}
+
+function removeSubcat(mi, ii, si) {
+  syncMenusFromForm();
+  navMenus[mi].items[ii]._subcats.splice(si, 1);
+  renderMenus();
 }
 
 function syncMenusFromForm() {
@@ -1836,17 +1918,34 @@ function syncMenusFromForm() {
     (menu.items || []).forEach((item, ii) => {
       const nEl = document.getElementById(`itemName-${mi}-${ii}`);
       const tEl = document.getElementById(`itemType-${mi}-${ii}`);
-      const cEl = document.getElementById(`itemCat-${mi}-${ii}`);
-      const uEl = document.getElementById(`itemUrl-${mi}-${ii}`);
-      const bEl = document.getElementById(`itemBg-${mi}-${ii}`);
       if (nEl) item.name = nEl.value.trim();
-      if (tEl) {
-        const t = tEl.value;
-        delete item.category; delete item.url;
-        if (t === 'url' && uEl) { if (uEl.value.trim()) item.url = uEl.value.trim(); }
-        else if (cEl && cEl.value.trim()) item.category = cEl.value.trim();
+      if (!tEl) return;
+      const t = tEl.value;
+      delete item.category; delete item.url; delete item.background;
+
+      if (t === 'section') {
+        item._layout = 'section-cards';
+        item._path   = document.getElementById(`itemPath-${mi}-${ii}`)?.value?.trim() || '';
+        item._cover  = document.getElementById(`itemSectionCover-${mi}-${ii}`)?.value?.trim() || '';
+        item._desc   = document.getElementById(`itemSectionDesc-${mi}-${ii}`)?.value?.trim() || '';
+        item.url     = item._path ? `/${item._path}/` : '';
+        (item._subcats || []).forEach((s, si) => {
+          s.name   = document.getElementById(`subcat-name-${mi}-${ii}-${si}`)?.value?.trim()   || s.name;
+          s.slug   = document.getElementById(`subcat-slug-${mi}-${ii}-${si}`)?.value?.trim()   || s.slug;
+          s.symbol = document.getElementById(`subcat-symbol-${mi}-${ii}-${si}`)?.value?.trim() || s.symbol;
+          s.cover  = document.getElementById(`subcat-cover-${mi}-${ii}-${si}`)?.value?.trim()  || s.cover;
+        });
+      } else if (t === 'url') {
+        const uEl = document.getElementById(`itemUrl-${mi}-${ii}`);
+        if (uEl?.value?.trim()) item.url = uEl.value.trim();
+        delete item._layout; delete item._path; delete item._cover; delete item._desc; delete item._subcats;
+      } else {
+        const cEl = document.getElementById(`itemCat-${mi}-${ii}`);
+        const bEl = document.getElementById(`itemBg-${mi}-${ii}`);
+        if (cEl?.value?.trim()) item.category = cEl.value.trim();
+        if (bEl?.value?.trim()) item.background = bEl.value.trim();
+        delete item._layout; delete item._path; delete item._cover; delete item._desc; delete item._subcats;
       }
-      if (bEl) item.background = bEl.value.trim();
     });
   });
 }
@@ -1900,16 +1999,36 @@ function collectMenuData() {
   return navMenus.map((menu, mi) => {
     const name = document.getElementById(`menuName-${mi}`)?.value?.trim() || menu.name;
     const items = (menu.items || []).map((item, ii) => {
-      const n   = document.getElementById(`itemName-${mi}-${ii}`)?.value?.trim() || '';
-      const t   = document.getElementById(`itemType-${mi}-${ii}`)?.value || 'category';
-      const cat = document.getElementById(`itemCat-${mi}-${ii}`)?.value?.trim() || '';
-      const url = document.getElementById(`itemUrl-${mi}-${ii}`)?.value?.trim() || '';
-      const bg  = document.getElementById(`itemBg-${mi}-${ii}`)?.value?.trim() || '';
+      const n = document.getElementById(`itemName-${mi}-${ii}`)?.value?.trim() || '';
+      const t = document.getElementById(`itemType-${mi}-${ii}`)?.value || 'category';
       if (!n) return null;
       const obj = { name: n };
-      if (t === 'url' && url) obj.url = url;
-      else if (cat) obj.category = cat;
-      if (bg) obj.background = bg;
+
+      if (t === 'section') {
+        const path  = document.getElementById(`itemPath-${mi}-${ii}`)?.value?.trim()            || item._path  || '';
+        const cover = document.getElementById(`itemSectionCover-${mi}-${ii}`)?.value?.trim()     || item._cover || '';
+        const desc  = document.getElementById(`itemSectionDesc-${mi}-${ii}`)?.value?.trim()      || item._desc  || '';
+        obj._layout = 'section-cards';
+        obj._path   = path;
+        if (cover) obj._cover = cover;
+        if (desc)  obj._desc  = desc;
+        obj.url = path ? `/${path}/` : '';
+        const subcats = (item._subcats || []).map((s, si) => ({
+          name:   document.getElementById(`subcat-name-${mi}-${ii}-${si}`)?.value?.trim()   || s.name   || '',
+          slug:   document.getElementById(`subcat-slug-${mi}-${ii}-${si}`)?.value?.trim()   || s.slug   || '',
+          symbol: document.getElementById(`subcat-symbol-${mi}-${ii}-${si}`)?.value?.trim() || s.symbol || '',
+          cover:  document.getElementById(`subcat-cover-${mi}-${ii}-${si}`)?.value?.trim()  || s.cover  || '',
+        })).filter(s => s.name || s.slug);
+        if (subcats.length) obj._subcats = subcats;
+      } else if (t === 'url') {
+        const url = document.getElementById(`itemUrl-${mi}-${ii}`)?.value?.trim() || item.url || '';
+        if (url) obj.url = url;
+      } else {
+        const cat = document.getElementById(`itemCat-${mi}-${ii}`)?.value?.trim()  || item.category   || '';
+        const bg  = document.getElementById(`itemBg-${mi}-${ii}`)?.value?.trim()   || item.background || '';
+        if (cat) obj.category   = cat;
+        if (bg)  obj.background = bg;
+      }
       return obj;
     }).filter(Boolean);
     return { name, items };
@@ -1981,6 +2100,52 @@ function restoreCategoryDropdowns(categoryValue) {
   }
 }
 
+function buildIndexMd(fields) {
+  let fm = '---\n';
+  for (const [k, v] of Object.entries(fields)) {
+    if (!v && v !== 0) continue;
+    fm += `${k}: "${String(v).replace(/\\/g,'\\\\').replace(/"/g,'\\"')}"\n`;
+  }
+  fm += '---\n';
+  return fm;
+}
+
+async function createOrUpdateIndexMd(filePath, content) {
+  let sha = '';
+  try { sha = (await apiGet(`repos/${REPO}/contents/${filePath}`)).sha; } catch {}
+  const body = { message: `feat: 创建/更新分类页 ${filePath}`, content: b64encode(content) };
+  if (sha) body.sha = sha;
+  await apiPut(`repos/${REPO}/contents/${filePath}`, body);
+}
+
+async function createSectionIndexFiles(menus) {
+  const tasks = [];
+  for (const menu of menus) {
+    for (const item of (menu.items || [])) {
+      if (item._layout !== 'section-cards' || !item._path) continue;
+      const path = item._path.replace(/^\/|\/$/g, '');
+      tasks.push(createOrUpdateIndexMd(`content/${path}/_index.md`, buildIndexMd({
+        title: item.name,
+        description: item._desc || '',
+        layout: 'section-cards',
+        cover: item._cover || '',
+      })));
+      for (const sub of (item._subcats || [])) {
+        if (!sub.slug) continue;
+        tasks.push(createOrUpdateIndexMd(`content/${path}/${sub.slug}/_index.md`, buildIndexMd({
+          title: sub.name || sub.slug,
+          symbol: sub.symbol || '',
+          cover: sub.cover || '',
+          layout: 'section-cards',
+          parent_title: item.name,
+          parent_url: `/${path}/`,
+        })));
+      }
+    }
+  }
+  if (tasks.length) await Promise.all(tasks);
+}
+
 async function saveMenus() {
   const btn = document.getElementById('saveMenusBtn');
   btn.disabled = true;
@@ -1993,9 +2158,10 @@ async function saveMenus() {
     const body = { message: 'config: update nav menus', content: b64encode(yaml) };
     if (sha) body.sha = sha;
     await apiPut(`repos/${REPO}/contents/data/nav_menus.yml`, body);
-    navMenus = data;
+    navMenus = jsyaml.load(yaml) || [];
+    await createSectionIndexFiles(navMenus);
     populateCategoryDatalist();
-    showToast('菜单已保存！Vercel 正在重新部署...', 'success');
+    showToast('菜单已保存，分类目录已同步！Vercel 正在重新部署...', 'success');
   } catch(e) { showToast('保存失败：' + e.message, 'error'); }
   finally {
     btn.disabled = false;
