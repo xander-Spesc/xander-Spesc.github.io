@@ -10,7 +10,7 @@
 {{- $parentURL   := .Params.parent_url   | default "" -}}
 {{- $recentCount := .Params.recent_count | default 4 -}}
 
-{{/* Hero */}}
+{{/* Hero — 背景图 + 标题 + 子分类卡片全部叠在一起 */}}
 <section class="sc-hero">
   {{- if $cover -}}
   <div class="sc-hero-bg">
@@ -35,6 +35,31 @@
       {{- with .Lastmod -}}<span>更新于 {{ .Format "2006-01-02" }}</span>{{- end -}}
     </div>
   </div>
+  {{- if .Sections -}}
+  <div class="sc-hero-cards">
+    <div class="sc-grid">
+      {{- range .Sections -}}
+      {{- $cardCover := .Params.cover | default "" -}}
+      <a class="sc-card" href="{{ .RelPermalink }}">
+        <div class="sc-card-cover">
+          {{- if $cardCover -}}
+          <img src="{{ $cardCover | relURL }}" alt="{{ .Title }}">
+          {{- end -}}
+          <div class="sc-card-mask"></div>
+        </div>
+        <div class="sc-card-body">
+          <h3>{{ .Title }}</h3>
+          <p>{{ .Description | default "暂无简介" }}</p>
+          <div class="sc-card-footer">
+            <span>{{ .Pages | len }} 篇文章</span>
+            <span class="sc-card-arrow">›</span>
+          </div>
+        </div>
+      </a>
+      {{- end -}}
+    </div>
+  </div>
+  {{- end -}}
 </section>
 
 {{/* 面包屑 */}}
@@ -51,40 +76,6 @@
 {{/* 主体 */}}
 <div class="sc-layout">
   <div class="sc-main">
-
-    {{/* 子分类卡片 */}}
-    {{- if .Sections -}}
-    <section class="sc-block">
-      <div class="sc-section-head">
-        <div>
-          <h2>子分类</h2>
-          <p>选择一个更细的方向继续浏览</p>
-        </div>
-      </div>
-      <div class="sc-grid">
-        {{- range .Sections -}}
-        {{- $cardCover  := .Params.cover   | default "" -}}
-        {{- $cardSymbol := .Params.symbol  | default (substr .Title 0 1) -}}
-        <a class="sc-card" href="{{ .RelPermalink }}">
-          <div class="sc-card-cover">
-            {{- if $cardCover -}}
-            <img src="{{ $cardCover | relURL }}" alt="{{ .Title }}">
-            {{- end -}}
-            <div class="sc-card-mask"></div>
-          </div>
-          <div class="sc-card-body">
-            <h3>{{ .Title }}</h3>
-            <p>{{ .Description | default "暂无简介" }}</p>
-            <div class="sc-card-footer">
-              <span>{{ .Pages | len }} 篇文章</span>
-              <span class="sc-card-arrow">›</span>
-            </div>
-          </div>
-        </a>
-        {{- end -}}
-      </div>
-    </section>
-    {{- end -}}
 
     {{/* 最新文章 */}}
     {{- $recent := first $recentCount .RegularPages -}}
