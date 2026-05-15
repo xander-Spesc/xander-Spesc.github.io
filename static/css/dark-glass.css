@@ -57,30 +57,7 @@ html,
   height: 100% !important;
   object-fit: cover !important;
 }
-/* ::before 轻微打亮，整体不过暗 */
-#header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.12);
-  pointer-events: none;
-  z-index: 1;
-}
-/* ::after 长渐变：从中段透明淡出到页面背景色，彻底消除边界 */
-#header::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 65%;
-  background: linear-gradient(to bottom,
-    rgba(250, 247, 247, 0)    0%,
-    rgba(250, 247, 247, 0.28) 30%,
-    rgba(250, 247, 247, 0.68) 60%,
-    #faf7f7                   100%);
-  pointer-events: none;
-  z-index: 2;
-}
-/* 标题在渐变层之上 */
+/* 标题在图片之上 */
 #header-outer {
   position: relative !important;
   z-index: 3 !important;
