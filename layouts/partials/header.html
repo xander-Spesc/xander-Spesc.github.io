@@ -196,4 +196,31 @@
       {{- end -}}
     </div>
   </div>
+
+  {{- if .IsHome -}}
+  <div class="hero-profile-card">
+    <div class="hero-avatar-wrap">
+      <img src="{{ .Site.Params.avatar | relURL }}" alt="{{ .Site.Params.author }}" class="hero-avatar-img">
+    </div>
+    <div class="hero-name">{{ .Site.Params.author }}</div>
+    <div class="hero-bio">{{ .Site.Params.description }}</div>
+    <div class="hero-stats">
+      <div class="hero-stat-item">
+        <span class="hero-stat-num">{{ len .Site.RegularPages }}</span>
+        <span class="hero-stat-label">文章</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat-item">
+        <span class="hero-stat-num">{{ len .Site.Taxonomies.categories }}</span>
+        <span class="hero-stat-label">分类</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat-item">
+        <span class="hero-stat-num">{{ len .Site.Taxonomies.tags }}</span>
+        <span class="hero-stat-label">标签</span>
+      </div>
+    </div>
+    <a href="{{ "/about/" | relURL }}" class="hero-more-btn">了解更多</a>
+  </div>
+  {{- end -}}
 </header>

@@ -75,6 +75,117 @@ body::after {
   opacity: 0.4;
 }
 
+/* ── 主页个人卡片：浮在 hero 右侧 ── */
+.hero-profile-card {
+  position: absolute;
+  right: 6%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 240px;
+  background: rgba(255, 255, 255, 0.30);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 28px;
+  padding: 32px 24px 28px;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(120, 140, 220, 0.20),
+              inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.hero-avatar-wrap {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #ff9fc7, #a78bfa);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.55),
+              0 8px 24px rgba(200, 140, 220, 0.35);
+}
+
+.hero-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 3px solid #fff;
+}
+
+.hero-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3f4a63;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.hero-bio {
+  font-size: 12px;
+  color: #76839f;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  padding: 0 4px;
+}
+
+.hero-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 20px;
+}
+
+.hero-stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.hero-stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: #3f4a63;
+  line-height: 1;
+}
+
+.hero-stat-label {
+  font-size: 11px;
+  color: #9aa6bd;
+}
+
+.hero-stat-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(150, 160, 200, 0.25);
+  flex-shrink: 0;
+}
+
+.hero-more-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 0;
+  border-radius: 999px;
+  background: linear-gradient(100deg, #ff9fc7 0%, #a78bfa 100%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 20px rgba(180, 130, 255, 0.30);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.hero-more-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-2px);
+  color: #fff;
+}
+
 /* ── 导航栏：悬浮毛玻璃胶囊 ── */
 #header-nav {
   position: fixed !important;
