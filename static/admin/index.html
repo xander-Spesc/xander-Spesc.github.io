@@ -2111,11 +2111,19 @@ function buildIndexMd(fields) {
 }
 
 async function createOrUpdateIndexMd(filePath, content) {
-  let sha = '';
-  try { sha = (await apiGet(`repos/${REPO}/contents/${filePath}`)).sha; } catch {}
-  const body = { message: `feat: 创建/更新分类页 ${filePath}`, content: b64encode(content) };
-  if (sha) body.sha = sha;
-  await apiPut(`repos/${REPO}/contents/${filePath}`, body);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    let sha = '';
+    try { sha = (await apiGet(`repos/${REPO}/contents/${filePath}`)).sha; } catch {}
+    const body = { message: `feat: 创建/更新分类页 ${filePath}`, content: b64encode(content) };
+    if (sha) body.sha = sha;
+    try {
+      await apiPut(`repos/${REPO}/contents/${filePath}`, body);
+      return;
+    } catch (e) {
+      if (attempt === 0 && String(e.message).startsWith('409')) continue;
+      throw e;
+    }
+  }
 }
 
 async function createSectionIndexFiles(menus) {
