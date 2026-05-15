@@ -691,7 +691,18 @@ body::after {
 }
 
 /* 子分类卡片 */
-.sc-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; }
+.sc-grid {
+  display: flex; gap: 16px;
+  overflow-x: auto; overflow-y: visible;
+  padding-bottom: 10px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.sc-grid .sc-card { flex: 0 0 220px; }
+.sc-grid::-webkit-scrollbar { height: 4px; }
+.sc-grid::-webkit-scrollbar-track { background: transparent; }
+.sc-grid::-webkit-scrollbar-thumb { background: rgba(141,162,255,0.25); border-radius: 99px; }
+.sc-grid:hover::-webkit-scrollbar-thumb { background: rgba(141,162,255,0.55); }
 .sc-card {
   overflow: hidden; border-radius: 20px; text-decoration: none;
   background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.76);
@@ -763,17 +774,14 @@ body::after {
 
 /* 响应式 */
 @media (max-width: 1180px) {
-  .sc-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
   .sc-layout { grid-template-columns: 1fr; }
   .sc-sidebar { position: static; grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 @media (max-width: 900px) {
-  .sc-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .sc-article-list { grid-template-columns: 1fr; }
   .sc-sidebar { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
-  .sc-grid { grid-template-columns: 1fr; }
   .sc-article-card { grid-template-columns: 1fr; }
   .sc-article-card > img, .sc-article-no-cover { width: 100%; height: auto; aspect-ratio: 16/9; }
 }
