@@ -120,6 +120,8 @@ body::after {
   height: 100vh !important;
 }
 
+/* 移除主题的 mask（否则图片底部透明消失），强制填满 */
+#header img,
 #header > img,
 #header > picture > img,
 .header-video {
@@ -128,7 +130,9 @@ body::after {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
-  z-index: 0;
+  -webkit-mask: none !important;
+  mask: none !important;
+  z-index: 0 !important;
 }
 
 /* 底部渐变融入背景（终点与 body 渐变顶色一致） */

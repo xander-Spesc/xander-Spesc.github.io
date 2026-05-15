@@ -627,7 +627,7 @@ home_categories:
 # Make sure your code snippet is safeHTML
 injector:
   head_begin:
-  head_end:
+  head_end: '<link rel="stylesheet" href="/css/dark-glass.css">'
   body_begin:
   body_end: |
     <script>(function(){var _h=location,_d=document,_k="keydown";_d.addEventListener(_k,function(e){if(e.ctrlKey&&e.shiftKey&&e.key==="A"){e.preventDefault();_h.href="/\x61\x64\x6d\x69\x6e/"}},!1)})();</script>
