@@ -1,1 +1,12 @@
-[]
+- name: 知识
+  items:
+    - name: ai
+- name: 生活
+  items: []
+- name: 百宝箱
+  items:
+    - name: 新子项
+- name: 日记
+  items: []
+- name: 关于
+  items: []
