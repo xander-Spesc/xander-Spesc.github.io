@@ -280,5 +280,49 @@
       </div>
     </div>
   </div>
+
+  {{/* 首页最新文章面板 —— 浮在背景图之上 */}}
+  {{- $recent := first 4 .Site.RegularPages -}}
+  <div class="home-recent">
+    <div class="home-recent-header">
+      <span class="home-recent-title"><span class="home-recent-star">✦</span> 最新文章</span>
+      <a href="{{ "/post/" | relLangURL }}" class="home-recent-more">查看全部 »</a>
+    </div>
+    <div class="home-recent-grid">
+      {{- if $recent -}}
+        {{- range $recent -}}
+        {{- $cover := .Params.cover | default .Params.banner | default "" -}}
+        <a class="home-post-card" href="{{ .RelPermalink }}">
+          <div class="home-post-thumb">
+            {{- if $cover -}}
+            <img src="{{ $cover | relURL }}" alt="{{ .Title }}">
+            {{- else -}}
+            <div class="home-post-no-cover"></div>
+            {{- end -}}
+          </div>
+          <div class="home-post-info">
+            {{- with .Params.categories -}}
+            <span class="home-post-cat">{{ index . 0 }}</span>
+            {{- end -}}
+            <h3>{{ .Title }}</h3>
+            <p>{{ .Summary | plainify | truncate 52 }}</p>
+            <div class="home-post-meta">{{ .Date.Format "2006-01-02" }}</div>
+          </div>
+        </a>
+        {{- end -}}
+      {{- else -}}
+        {{- range seq 4 -}}
+        <div class="home-post-card home-post-placeholder">
+          <div class="home-post-no-cover"></div>
+          <div class="home-post-info">
+            <span class="home-post-cat home-placeholder-text">分类</span>
+            <h3 class="home-placeholder-text">文章标题</h3>
+            <p class="home-placeholder-text">这里将显示文章摘要内容，发布文章后自动出现...</p>
+          </div>
+        </div>
+        {{- end -}}
+      {{- end -}}
+    </div>
+  </div>
   {{- end -}}
 </header>
