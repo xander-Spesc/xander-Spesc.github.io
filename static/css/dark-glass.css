@@ -162,6 +162,29 @@ body::after {
   flex-shrink: 0;
 }
 
+/* 了解更多按钮 */
+.hero-more-btn {
+  display: block;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 10px 0;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, #ff9fc7 0%, #c4b5fd 100%);
+  color: #fff !important;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 4px 18px rgba(196, 128, 220, 0.30);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.hero-more-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-2px);
+}
+
 /* 社交图标行 */
 .hero-social-row {
   display: flex;
