@@ -82,26 +82,51 @@ body::after {
   top: 50%;
   transform: translateY(-50%);
   z-index: 20;
-  width: 230px;
-  background: rgba(255, 255, 255, 0.28);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.52);
-  border-radius: 28px;
-  padding: 28px 20px 24px;
+  width: 260px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.70);
+  border-radius: 24px;
+  padding: 28px 24px 20px;
   text-align: center;
-  box-shadow: 0 16px 48px rgba(120, 140, 220, 0.18),
-              inset 0 1px 0 rgba(255, 255, 255, 0.60);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(180, 160, 220, 0.18);
 }
 
-/* 头像：粉紫描边，无白圈 */
+/* 头像外层（相对定位，放小花） */
 .hero-avatar-wrap {
-  width: 86px;
-  height: 86px;
-  margin: 0 auto 14px;
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 14px;
+}
+
+/* 渐变描边环 */
+.hero-avatar-ring {
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
+  background: linear-gradient(135deg, #f9b8d0, #c9a8f0, #a8c9f9);
   padding: 3px;
-  background: linear-gradient(135deg, #ff9fc7, #c4b5fd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 头像内圆（白边 + 图片） */
+.hero-avatar-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #f0eaf8;
+  border: 3px solid #fff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-avatar-img {
@@ -112,71 +137,73 @@ body::after {
   display: block;
 }
 
+/* 小花装饰 */
+.hero-crown {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  line-height: 1;
+}
+
 .hero-name {
   font-size: 17px;
-  font-weight: 700;
-  color: #3f4a63;
+  font-weight: 600;
+  color: #5a4a6a;
   margin-bottom: 5px;
-  letter-spacing: 0.5px;
 }
 
 .hero-bio {
   font-size: 12px;
-  color: #76839f;
+  color: #8a78a0;
   line-height: 1.5;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   padding: 0 2px;
 }
 
 .hero-stats {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
+  width: 100%;
+  justify-content: space-around;
+  margin-bottom: 18px;
 }
 
 .hero-stat-item {
+  text-align: center;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
+}
+
+.hero-stat-item + .hero-stat-item {
+  border-left: 1px solid rgba(180, 160, 220, 0.25);
+}
+
+.hero-stat-label {
+  font-size: 11px;
+  color: #a090b8;
+  margin-bottom: 3px;
 }
 
 .hero-stat-num {
   font-size: 22px;
   font-weight: 700;
-  color: #3f4a63;
-  line-height: 1;
-}
-
-.hero-stat-label {
-  font-size: 11px;
-  color: #9aa6bd;
-}
-
-.hero-stat-divider {
-  width: 1px;
-  height: 26px;
-  background: rgba(150, 160, 200, 0.22);
-  flex-shrink: 0;
+  color: #5a4a6a;
 }
 
 /* 了解更多按钮 */
 .hero-more-btn {
   display: block;
   width: 100%;
-  margin-bottom: 16px;
-  padding: 10px 0;
+  margin-bottom: 18px;
+  padding: 11px 0;
   border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, #ff9fc7 0%, #c4b5fd 100%);
+  background: linear-gradient(90deg, #f4a8c8 0%, #c8a8f0 100%);
   color: #fff !important;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 1px;
   text-align: center;
   text-decoration: none;
-  box-shadow: 0 4px 18px rgba(196, 128, 220, 0.30);
   transition: opacity 0.2s, transform 0.2s;
 }
 
@@ -189,7 +216,8 @@ body::after {
 .hero-social-row {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 18px;
+  align-items: center;
 }
 
 .hero-social-item {
@@ -200,28 +228,21 @@ body::after {
 }
 
 .hero-social-icon {
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.40);
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  color: #76839f;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.80);
   text-decoration: none;
-  transition: background 0.2s, transform 0.2s, color 0.2s;
-}
-
-.hero-social-icon svg {
-  width: 18px;
-  height: 18px;
+  transition: background 0.2s, transform 0.2s;
 }
 
 .hero-social-icon:hover {
-  background: rgba(255, 255, 255, 0.65);
-  color: #ec6fa6;
-  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.85);
+  transform: translateY(-2px);
 }
 
 /* 悬浮 tooltip：毛玻璃 */

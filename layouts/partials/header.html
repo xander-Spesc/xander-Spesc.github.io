@@ -209,43 +209,46 @@
   {{- $posts := (where .Site.RegularPages "Section" "in" .Site.Params.mainSections) -}}
   <div class="hero-profile-card">
     <div class="hero-avatar-wrap">
-      <img src="{{ $avatarSrc }}" alt="{{ .Site.Params.author }}" class="hero-avatar-img">
+      <div class="hero-avatar-ring">
+        <div class="hero-avatar-inner">
+          <img src="{{ $avatarSrc }}" alt="{{ .Site.Params.author }}" class="hero-avatar-img">
+        </div>
+      </div>
+      <div class="hero-crown">🌸</div>
     </div>
     <div class="hero-name">{{ .Site.Params.author }}</div>
     <div class="hero-bio">{{ .Site.Params.description }}</div>
     <div class="hero-stats">
       <div class="hero-stat-item">
-        <span class="hero-stat-num">{{ len $posts }}</span>
-        <span class="hero-stat-label">文章</span>
+        <div class="hero-stat-label">文章</div>
+        <div class="hero-stat-num">{{ len $posts }}</div>
       </div>
-      <div class="hero-stat-divider"></div>
       <div class="hero-stat-item">
-        <span class="hero-stat-num">{{ len .Site.Taxonomies.categories }}</span>
-        <span class="hero-stat-label">分类</span>
+        <div class="hero-stat-label">分类</div>
+        <div class="hero-stat-num">{{ len .Site.Taxonomies.categories }}</div>
       </div>
-      <div class="hero-stat-divider"></div>
       <div class="hero-stat-item">
-        <span class="hero-stat-num">{{ len .Site.Taxonomies.tags }}</span>
-        <span class="hero-stat-label">标签</span>
+        <div class="hero-stat-label">标签</div>
+        <div class="hero-stat-num">{{ len .Site.Taxonomies.tags }}</div>
       </div>
     </div>
     <a href="{{ "" | relLangURL }}" class="hero-more-btn">了解更多</a>
     <div class="hero-social-row">
       <div class="hero-social-item">
         <a href="tencent://message/?uin=1794652812" class="hero-social-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.116 2 11.185c0 2.837 1.357 5.37 3.485 7.037-.08.54-.502 2.519-.578 2.913a.338.338 0 0 0 .492.363c.386-.198 3.192-2.097 4.29-2.818.71.119 1.443.182 2.311.182 5.523 0 10-4.116 10-9.185C22 6.116 17.523 2 12 2z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#5a4a6a"><path d="M12 2C6.477 2 2 6.116 2 11.185c0 2.837 1.357 5.37 3.485 7.037-.08.54-.502 2.519-.578 2.913a.338.338 0 0 0 .492.363c.386-.198 3.192-2.097 4.29-2.818.71.119 1.443.182 2.311.182 5.523 0 10-4.116 10-9.185C22 6.116 17.523 2 12 2z"/></svg>
         </a>
         <div class="hero-tooltip">1794652812</div>
       </div>
       <div class="hero-social-item">
         <a href="https://space.bilibili.com/" class="hero-social-icon" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#5a4a6a"><path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373z"/></svg>
         </a>
         <div class="hero-tooltip">弹你牛</div>
       </div>
       <div class="hero-social-item">
         <a href="mailto:1794652812@qq.com" class="hero-social-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5a4a6a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><polyline points="2,4 12,13 22,4"/></svg>
         </a>
         <div class="hero-tooltip">1794652812@qq.com</div>
       </div>
