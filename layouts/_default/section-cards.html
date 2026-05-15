@@ -1,0 +1,162 @@
+{{- define "main" -}}
+<style>
+  #sidebar, .sidebar-top { display: none !important; }
+  #content { max-width: none !important; width: 100% !important; padding: 0 24px !important; }
+  #main { padding: 0 !important; max-width: none !important; }
+</style>
+
+{{- $cover       := .Params.cover | default "" -}}
+{{- $parentTitle := .Params.parent_title | default "" -}}
+{{- $parentURL   := .Params.parent_url   | default "" -}}
+{{- $recentCount := .Params.recent_count | default 4 -}}
+
+{{/* Hero */}}
+<section class="sc-hero">
+  {{- if $cover -}}
+  <div class="sc-hero-bg">
+    <img src="{{ $cover | relURL }}" alt="">
+    <div class="sc-hero-bg-mask"></div>
+  </div>
+  {{- end -}}
+  <div class="sc-hero-content">
+    <p class="sc-eyebrow">
+      {{- if and $parentTitle $parentURL -}}
+        <a href="{{ $parentURL }}">{{ $parentTitle }}</a> /
+      {{- end -}}
+      {{ .Title }}
+    </p>
+    <h1 class="sc-hero-title">{{ .Title }}</h1>
+    {{- with .Description -}}
+    <p class="sc-hero-desc">{{ . }}</p>
+    {{- end -}}
+    <div class="sc-hero-meta">
+      <span>文章数 {{ .Pages | len }}</span>
+      <span>子分类 {{ .Sections | len }}</span>
+      {{- with .Lastmod -}}<span>更新于 {{ .Format "2006-01-02" }}</span>{{- end -}}
+    </div>
+  </div>
+</section>
+
+{{/* 面包屑 */}}
+<nav class="sc-breadcrumb">
+  <a href="{{ "" | relLangURL }}">首页</a>
+  <span>/</span>
+  {{- if and $parentTitle $parentURL -}}
+  <a href="{{ $parentURL }}">{{ $parentTitle }}</a>
+  <span>/</span>
+  {{- end -}}
+  <span>{{ .Title }}</span>
+</nav>
+
+{{/* 主体 */}}
+<div class="sc-layout">
+  <div class="sc-main">
+
+    {{/* 子分类卡片 */}}
+    {{- if .Sections -}}
+    <section class="sc-block">
+      <div class="sc-section-head">
+        <div>
+          <h2>子分类</h2>
+          <p>选择一个更细的方向继续浏览</p>
+        </div>
+      </div>
+      <div class="sc-grid">
+        {{- range .Sections -}}
+        {{- $cardCover  := .Params.cover   | default "" -}}
+        {{- $cardSymbol := .Params.symbol  | default (substr .Title 0 1) -}}
+        <a class="sc-card" href="{{ .RelPermalink }}">
+          <div class="sc-card-cover">
+            {{- if $cardCover -}}
+            <img src="{{ $cardCover | relURL }}" alt="{{ .Title }}">
+            {{- end -}}
+            <div class="sc-card-mask"></div>
+            <div class="sc-card-symbol">{{ $cardSymbol }}</div>
+          </div>
+          <div class="sc-card-body">
+            <h3>{{ .Title }}</h3>
+            <p>{{ .Description | default "暂无简介" }}</p>
+            <div class="sc-card-footer">
+              <span>{{ .Pages | len }} 篇文章</span>
+              <span class="sc-card-arrow">›</span>
+            </div>
+          </div>
+        </a>
+        {{- end -}}
+      </div>
+    </section>
+    {{- end -}}
+
+    {{/* 最新文章 */}}
+    {{- $recent := first $recentCount .RegularPages -}}
+    {{- if $recent -}}
+    <section class="sc-block">
+      <div class="sc-section-head">
+        <div>
+          <h2>最新文章</h2>
+          <p>当前分类下最近更新的内容</p>
+        </div>
+        <a class="sc-more-link" href="{{ .RelPermalink }}">查看全部 ›</a>
+      </div>
+      <div class="sc-article-list">
+        {{- range $recent -}}
+        {{- $artCover := .Params.cover | default .Params.banner | default "" -}}
+        <a class="sc-article-card" href="{{ .RelPermalink }}">
+          {{- if $artCover -}}
+          <img src="{{ $artCover | relURL }}" alt="{{ .Title }}">
+          {{- else -}}
+          <div class="sc-article-no-cover"></div>
+          {{- end -}}
+          <div class="sc-article-info">
+            {{- with .Params.tags -}}
+            <div class="sc-article-tags">
+              {{- range first 2 . -}}<span>{{ . }}</span>{{- end -}}
+            </div>
+            {{- end -}}
+            <h3>{{ .Title }}</h3>
+            <p>{{ .Summary | plainify | truncate 80 }}</p>
+            <div class="sc-article-meta">
+              <span>{{ .Date.Format "2006-01-02" }}</span>
+            </div>
+          </div>
+        </a>
+        {{- end -}}
+      </div>
+    </section>
+    {{- end -}}
+
+  </div>
+
+  {{/* 侧边栏 */}}
+  <aside class="sc-sidebar">
+    {{- if .Sections -}}
+    <section class="sc-side-card">
+      <h3>快速导航</h3>
+      <div class="sc-side-links">
+        {{- range .Sections -}}
+        <a href="{{ .RelPermalink }}">{{ .Title }} <span>›</span></a>
+        {{- end -}}
+      </div>
+    </section>
+    {{- end -}}
+
+    {{- $tags := slice -}}
+    {{- range .RegularPages -}}
+      {{- range .Params.tags -}}
+        {{- $tags = $tags | append . -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $uniqueTags := $tags | uniq -}}
+    {{- if $uniqueTags -}}
+    <section class="sc-side-card">
+      <h3>热门标签</h3>
+      <div class="sc-tag-cloud">
+        {{- range first 12 $uniqueTags -}}
+        <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}/">{{ . }}</a>
+        {{- end -}}
+      </div>
+    </section>
+    {{- end -}}
+  </aside>
+</div>
+{{- end -}}
