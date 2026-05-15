@@ -13,6 +13,7 @@
 {{- end -}}
 
 <link rel="stylesheet" href="{{ "/css/nav-dropdown.css" | relURL }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
 <div id="header-nav">
   <nav id="main-nav" aria-label="Primary navigation">
@@ -40,7 +41,10 @@
                 {{- $href = printf "/categories/%s/" (.category | urlize) | relLangURL -}}
               {{- end -}}
               {{- if $href -}}
-                <a href="{{ $href }}" class="reimu-dropdown-item" role="menuitem">{{ .name }}</a>
+                <a href="{{ $href }}" class="reimu-dropdown-item" role="menuitem">
+                  {{- if .icon -}}<i class="{{ .icon }}" style="font-size:16px;margin-right:7px;opacity:0.75;vertical-align:middle;"></i>{{- end -}}
+                  {{ .name }}
+                </a>
               {{- end -}}
             {{- end -}}
           </div>

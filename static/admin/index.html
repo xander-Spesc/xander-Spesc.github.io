@@ -1789,10 +1789,14 @@ function renderMenuItems(items, mi) {
     const subcats = item._subcats || [];
     return `
     <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;background:var(--bg);">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
         <div>
           <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">子项名称</label>
           <input type="text" class="form-control" value="${esc(item.name||'')}" id="itemName-${mi}-${ii}" placeholder="如：科技" />
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">图标 class <span style="font-weight:400;color:#bbb;">（ti ti-cpu）</span></label>
+          <input type="text" class="form-control" value="${esc(item.icon||'')}" id="itemIcon-${mi}-${ii}" placeholder="ti ti-cpu" />
         </div>
         <div>
           <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">链接类型</label>
@@ -1918,7 +1922,9 @@ function syncMenusFromForm() {
     (menu.items || []).forEach((item, ii) => {
       const nEl = document.getElementById(`itemName-${mi}-${ii}`);
       const tEl = document.getElementById(`itemType-${mi}-${ii}`);
+      const iEl = document.getElementById(`itemIcon-${mi}-${ii}`);
       if (nEl) item.name = nEl.value.trim();
+      if (iEl) item.icon = iEl.value.trim();
       if (!tEl) return;
       const t = tEl.value;
       delete item.category; delete item.url; delete item.background;
@@ -1999,10 +2005,12 @@ function collectMenuData() {
   return navMenus.map((menu, mi) => {
     const name = document.getElementById(`menuName-${mi}`)?.value?.trim() || menu.name;
     const items = (menu.items || []).map((item, ii) => {
-      const n = document.getElementById(`itemName-${mi}-${ii}`)?.value?.trim() || '';
-      const t = document.getElementById(`itemType-${mi}-${ii}`)?.value || 'category';
+      const n    = document.getElementById(`itemName-${mi}-${ii}`)?.value?.trim() || '';
+      const t    = document.getElementById(`itemType-${mi}-${ii}`)?.value || 'category';
+      const icon = document.getElementById(`itemIcon-${mi}-${ii}`)?.value?.trim() || item.icon || '';
       if (!n) return null;
       const obj = { name: n };
+      if (icon) obj.icon = icon;
 
       if (t === 'section') {
         const path  = document.getElementById(`itemPath-${mi}-${ii}`)?.value?.trim()            || item._path  || '';
