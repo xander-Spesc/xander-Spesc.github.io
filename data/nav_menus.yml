@@ -1,6 +1,32 @@
 - name: 知识
   items:
-    - name: ai
+    - name: 科技
+      _layout: section-cards
+      _path: tech
+      _cover: https://xuejian-1432996375.cos.ap-beijing.myqcloud.com/科技.png
+      _desc: 不想要了解这个世界上好玩的东西嘛？
+      url: /tech/
+      _subcats:
+        - name: AI
+          slug: AI
+          symbol: ''
+          cover: https://xuejian-1432996375.cos.ap-beijing.myqcloud.com/ai.png
+        - name: verilog
+          slug: verilog
+          symbol: ''
+          cover: https://xuejian-1432996375.cos.ap-beijing.myqcloud.com/verilog.png
+        - name: C++
+          slug: C++
+          symbol: ''
+          cover: https://xuejian-1432996375.cos.ap-beijing.myqcloud.com/c++.png
+        - name: python
+          slug: python
+          symbol: ''
+          cover: https://xuejian-1432996375.cos.ap-beijing.myqcloud.com/python.png
+        - name: systemc
+          slug: systemc
+          symbol: ''
+          cover: https://xuejian-1432996375.cos.ap-beijing.myqcloud.com/systemc.png
 - name: 生活
   items: []
 - name: 百宝箱
