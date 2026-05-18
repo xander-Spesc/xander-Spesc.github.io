@@ -31,7 +31,8 @@
     <p class="sc-hero-desc">{{ . }}</p>
     {{- end -}}
     <div class="sc-hero-meta">
-      <span>文章数 {{ .Pages | len }}</span>
+      {{- $total := .RegularPages | len -}}{{- range .Sections -}}{{- $total = add $total (.RegularPages | len) -}}{{- end -}}
+      <span>文章数 {{ $total }}</span>
       <span>子分类 {{ .Sections | len }}</span>
       {{- with .Lastmod -}}<span>更新于 {{ .Format "2006-01-02" }}</span>{{- end -}}
     </div>
@@ -87,8 +88,12 @@
     </section>
     {{- end -}}
 
-    {{/* 最新文章 */}}
-    {{- $recent := first $recentCount .RegularPages -}}
+    {{/* 最新文章（含子分类） */}}
+    {{- $allPages := .RegularPages -}}
+    {{- range .Sections -}}
+      {{- $allPages = $allPages | append .RegularPages -}}
+    {{- end -}}
+    {{- $recent := first $recentCount (sort $allPages "Date" "desc") -}}
     {{- if $recent -}}
     <section class="sc-block">
       <div class="sc-section-head">

@@ -140,6 +140,23 @@ body::after {
   user-select: auto !important;
 }
 
+/* 主页文章缩略图：阻止主题 #header img 全局规则干扰 */
+#header .home-post-thumb img {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  object-fit: cover !important;
+  display: block !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+  z-index: auto !important;
+  transition: transform 0.4s ease !important;
+  user-select: auto !important;
+}
+
 
 .hero-name {
   font-size: 17px;
