@@ -624,7 +624,16 @@ hr,
 /* 主体布局 */
 .sc-layout { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 24px; align-items: start; }
 .sc-main { display: grid; gap: 32px; min-width: 0; }
-.sc-block { min-width: 0; }
+.sc-block {
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.70);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(140, 120, 200, 0.14);
+}
 
 .sc-section-head { margin-bottom: 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
 .sc-section-head h2 { margin: 0; font-size: 24px; color: #35405c; }
