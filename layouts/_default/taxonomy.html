@@ -1,4 +1,7 @@
 {{- define "main" -}}
+<style>
+  #content { margin-top: 0 !important; }
+</style>
   {{- $ctx := . -}}
   {{- $pageSize := 0 -}}
   {{- with $.Site.Params.paginate.post -}}

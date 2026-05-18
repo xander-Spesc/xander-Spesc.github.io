@@ -430,6 +430,7 @@ input[type="file"] { display: none; }
                 </select>
               </div>
               <input type="hidden" id="postCategory" />
+              <input type="hidden" id="postSectionPath" />
               <div class="editor-sidebar-section">
                 <label>标签（逗号分隔）</label>
                 <input type="text" class="form-control" id="postTags" placeholder="Hugo, 博客, 技术" />
@@ -1112,7 +1113,7 @@ function renderPosts(posts, cid) {
 
 function newPost() {
   document.getElementById('editorTitle').textContent = '写新文章';
-  ['postTitle','markdownEditor','postCategory','postTags','postFilename','postCover','editingPath','editingSha']
+  ['postTitle','markdownEditor','postCategory','postSectionPath','postTags','postFilename','postCover','editingPath','editingSha']
     .forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('postMenuGroup').value = '';
   onMenuGroupChange();
@@ -1170,7 +1171,8 @@ async function publishPost() {
   const coverLine = cover ? `\ncover: "${cover}"` : '';
   const fm = `---\ntitle: "${title}"\ndate: ${now}${catLines}${tagLines}${coverLine}\n---\n\n`;
   const encoded = b64encode(fm + content);
-  const filePath = existingPath || `${POST_PATH}/${filename}.md`;
+  const sectionPath = document.getElementById('postSectionPath').value.trim();
+  const filePath = existingPath || (sectionPath ? `content/${sectionPath}/${filename}.md` : `${POST_PATH}/${filename}.md`);
   const body = {
     message: existingPath ? `update: ${title}` : `post: ${title}`,
     content: encoded
@@ -2048,15 +2050,16 @@ function populateCategoryDatalist() {
   if (!groupSel) return;
   const prevGroup = groupSel.value;
   groupSel.innerHTML = '<option value="">-- 选择大类 --</option>';
-  navMenus.forEach((menu, i) => {
-    if ((menu.items || []).some(it => it.category)) {
-      const opt = document.createElement('option');
-      opt.value = String(i);
-      opt.textContent = menu.name;
-      groupSel.appendChild(opt);
-    }
+  navMenus.forEach((menu, gi) => {
+    (menu.items || []).forEach((item, ii) => {
+      if (item._subcats && item._subcats.length) {
+        const opt = document.createElement('option');
+        opt.value = `${gi}:${ii}`;
+        opt.textContent = item.name;
+        groupSel.appendChild(opt);
+      }
+    });
   });
-  // restore previous selection if still valid
   if (prevGroup !== '' && groupSel.querySelector(`option[value="${prevGroup}"]`)) {
     groupSel.value = prevGroup;
   }
@@ -2069,23 +2072,27 @@ function onMenuGroupChange() {
   const catInput = document.getElementById('postCategory');
   subSel.innerHTML = '<option value="">-- 选择小类 --</option>';
   catInput.value = '';
-  const idx = groupSel.value;
-  if (idx === '') return;
-  const menu = navMenus[parseInt(idx, 10)];
-  if (!menu) return;
-  (menu.items || []).forEach(item => {
-    if (item.category) {
-      const opt = document.createElement('option');
-      opt.value = item.category;
-      opt.textContent = item.name;
-      subSel.appendChild(opt);
-    }
+  document.getElementById('postSectionPath').value = '';
+  const val = groupSel.value;
+  if (val === '') return;
+  const [gi, ii] = val.split(':').map(Number);
+  const item = ((navMenus[gi] || {}).items || [])[ii];
+  if (!item) return;
+  groupSel.dataset.itemPath = item._path || '';
+  (item._subcats || []).forEach(sub => {
+    const opt = document.createElement('option');
+    opt.value = sub.slug;
+    opt.textContent = sub.name;
+    subSel.appendChild(opt);
   });
 }
 
 function onSubCategoryChange() {
   const subSel = document.getElementById('postSubCategory');
-  document.getElementById('postCategory').value = subSel.value;
+  const slug = subSel.value;
+  document.getElementById('postCategory').value = slug;
+  const itemPath = document.getElementById('postMenuGroup').dataset.itemPath || '';
+  document.getElementById('postSectionPath').value = (itemPath && slug) ? `${itemPath}/${slug}` : '';
 }
 
 function restoreCategoryDropdowns(categoryValue) {
@@ -2095,15 +2102,19 @@ function restoreCategoryDropdowns(categoryValue) {
   subSel.innerHTML = '<option value="">-- 选择小类 --</option>';
   document.getElementById('postCategory').value = '';
   if (!categoryValue) return;
-  for (let i = 0; i < navMenus.length; i++) {
-    const menu = navMenus[i];
-    const match = (menu.items || []).find(it => it.category === categoryValue);
-    if (match) {
-      groupSel.value = String(i);
-      onMenuGroupChange();
-      subSel.value = categoryValue;
-      document.getElementById('postCategory').value = categoryValue;
-      break;
+  for (let gi = 0; gi < navMenus.length; gi++) {
+    const items = navMenus[gi].items || [];
+    for (let ii = 0; ii < items.length; ii++) {
+      const match = (items[ii]._subcats || []).find(sub => sub.slug === categoryValue || sub.name === categoryValue);
+      if (match) {
+        groupSel.value = `${gi}:${ii}`;
+        onMenuGroupChange();
+        subSel.value = match.slug;
+        document.getElementById('postCategory').value = match.slug;
+        const itemPath = groupSel.dataset.itemPath || '';
+        document.getElementById('postSectionPath').value = (itemPath && match.slug) ? `${itemPath}/${match.slug}` : '';
+        return;
+      }
     }
   }
 }

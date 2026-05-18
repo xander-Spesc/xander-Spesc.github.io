@@ -1,7 +1,7 @@
 {{- define "main" -}}
 <style>
   #header, #sidebar, .sidebar-top { display: none !important; }
-  #content { max-width: none !important; width: 100% !important; padding: 0 24px !important; }
+  #content { max-width: none !important; width: 100% !important; padding: 0 24px !important; margin-top: 72px !important; }
   #main { padding: 0 !important; max-width: none !important; }
 </style>
 
@@ -10,14 +10,15 @@
 {{- $parentURL   := .Params.parent_url   | default "" -}}
 {{- $recentCount := .Params.recent_count | default 4 -}}
 
-{{/* Hero */}}
+{{/* 全页背景图 */}}
+{{- if $cover -}}
+<div class="sc-page-bg">
+  <img src="{{ $cover | relURL }}" alt="">
+</div>
+{{- end -}}
+
+{{/* Hero 浮动玻璃卡片 */}}
 <section class="sc-hero">
-  {{- if $cover -}}
-  <div class="sc-hero-bg">
-    <img src="{{ $cover | relURL }}" alt="">
-    <div class="sc-hero-bg-mask"></div>
-  </div>
-  {{- end -}}
   <div class="sc-hero-content">
     <p class="sc-eyebrow">
       {{- if and $parentTitle $parentURL -}}
@@ -162,6 +163,10 @@
 document.querySelectorAll('.sc-grid').forEach(el => {
   el.addEventListener('wheel', e => {
     if (e.deltaY === 0) return;
+    const atLeft  = el.scrollLeft === 0;
+    const atRight = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
+    if (atLeft && e.deltaY < 0) return;
+    if (atRight && e.deltaY > 0) return;
     e.preventDefault();
     el.scrollLeft += e.deltaY;
   }, { passive: false });

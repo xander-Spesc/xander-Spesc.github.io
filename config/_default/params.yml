@@ -154,7 +154,6 @@ widgets:
   - category
   - tag
   - tagcloud
-  - recent_posts
 
 # Widget behavior
 category_limits: 10
@@ -667,7 +666,7 @@ live2d_widgets:
 
 # https://github.com/CodeByZach/pace
 pace:
-  enable: true
+  enable: false
 
 # Experimental
 # Please turn on pjax to use this feature

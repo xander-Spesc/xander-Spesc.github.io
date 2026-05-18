@@ -13,6 +13,9 @@
 {{- end -}}
 
 <link rel="stylesheet" href="{{ "/css/nav-dropdown.css" | relURL }}">
+{{- if .IsHome -}}
+<link rel="stylesheet" href="{{ "/css/home.css" | relURL }}">
+{{- end -}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
 <div id="header-nav">
