@@ -1,0 +1,68 @@
+{{- if .Site.Params.preloader.enable -}}
+  <div id="loader">
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-mark" aria-hidden="true">
+        <div class="loading-ring"></div>
+        <span class="loading-star loading-star-1"></span>
+        <span class="loading-star loading-star-2"></span>
+        <span class="loading-star loading-star-3"></span>
+      </div>
+      {{- $languageCode := .Site.Language.LanguageCode -}}
+      {{- $text := .Site.Params.preloader.text -}}
+      {{- $realText := "" -}}
+      {{- if reflect.IsMap $text -}}
+        {{- $realText = index $text $languageCode -}}
+        {{- if not $realText -}}
+          {{- $realText = index $text "en" -}}
+        {{- end -}}
+      {{- else -}}
+        {{- $realText = $text -}}
+      {{- end -}}
+      <div class="loading-word">{{ $realText }}</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    };
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loaderEl.classList.add('loading');
+    };
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else if (Date.now() - time > 500) {
+        time = null;
+        hideLoader();
+      } else {
+        setTimeout(endLoading, 500 - (Date.now() - time));
+        time = null;
+      }
+    };
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+{{- end -}}
+
+<div id="copy-tooltip"></div>
+<div id="lang-tooltip">
+{{ i18n "multi_language.not_found" }}
+</div>
+<div id="heatmap-tooltip"></div>
+
+{{- if .Site.Params.service_worker.enable -}}
+  <div class="notification-wrapper">
+    <h1>{{ i18n "service_worker.title" }}</h1>
+    <p>{{ i18n "service_worker.content" }}</p>
+    <div class="notification-btn">
+      <button id="notification-update-btn">{{ i18n "service_worker.confirm" }}</button>
+      <button id="notification-close-btn">{{ i18n "service_worker.cancel" }}</button>
+    </div>
+  </div>
+{{- end -}}
