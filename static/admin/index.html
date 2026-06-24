@@ -186,6 +186,34 @@ body { font-family: 'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; backg
   outline: none; resize: vertical; line-height: 1.8; background: var(--white);
 }
 #markdownEditor:focus { border-color: var(--red); }
+.visual-editor {
+  width: 100%;
+  min-height: 520px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 0 0 9px 9px;
+  background: var(--white);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.8;
+  outline: none;
+  overflow: auto;
+}
+.visual-editor:focus { border-color: var(--red); }
+.visual-editor:empty::before { content: attr(data-placeholder); color: var(--text-muted); }
+.visual-editor h1, .visual-editor h2, .visual-editor h3 { margin: 1.1em 0 0.55em; line-height: 1.35; }
+.visual-editor h1 { font-size: 28px; }
+.visual-editor h2 { font-size: 23px; }
+.visual-editor h3 { font-size: 19px; }
+.visual-editor p { margin: 0 0 1em; }
+.visual-editor ul, .visual-editor ol { padding-left: 1.5em; margin: 0 0 1em; }
+.visual-editor blockquote { margin: 0 0 1em; padding: 10px 14px; border-left: 4px solid var(--red); background: var(--red-pale); color: var(--text-muted); }
+.visual-editor pre { margin: 0 0 1em; padding: 12px; border-radius: 8px; background: #f6f7f9; overflow: auto; font-family: 'Cascadia Code','Consolas',monospace; }
+.visual-editor code { padding: 2px 5px; border-radius: 5px; background: #f1f2f5; font-family: 'Cascadia Code','Consolas',monospace; }
+.visual-editor img { display: block; max-width: 100%; max-height: 420px; margin: 12px auto; border-radius: 8px; }
+.visual-editor a { color: var(--red); }
+.editor-mode-note { margin-top: 8px; color: var(--text-muted); font-size: 12px; }
+.is-hidden { display: none !important; }
 .form-control { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-size: 14px; outline: none; transition: border 0.2s; font-family: inherit; }
 .form-control:focus { border-color: var(--red); }
 .editor-sidebar-section { margin-bottom: 16px; }
@@ -391,26 +419,29 @@ input[type="file"] { display: none; }
           <input type="text" class="form-control" id="postTitle" placeholder="文章标题..." style="font-size:18px;font-weight:600;padding:14px;" />
           <div>
             <div class="editor-toolbar">
-              <button class="tb-btn" onclick="insertMd('**','**')" title="粗体"><b>B</b></button>
-              <button class="tb-btn" onclick="insertMd('*','*')" title="斜体"><i>I</i></button>
-              <button class="tb-btn" onclick="insertMd('~~','~~')" title="删除线"><s>S</s></button>
+              <button class="tb-btn" onclick="formatRich('bold')" title="粗体"><b>B</b></button>
+              <button class="tb-btn" onclick="formatRich('italic')" title="斜体"><i>I</i></button>
+              <button class="tb-btn" onclick="formatRich('strikeThrough')" title="删除线"><s>S</s></button>
               <div class="tb-sep"></div>
-              <button class="tb-btn" onclick="insertMdLine('# ')" title="标题1">H1</button>
-              <button class="tb-btn" onclick="insertMdLine('## ')" title="标题2">H2</button>
-              <button class="tb-btn" onclick="insertMdLine('### ')" title="标题3">H3</button>
+              <button class="tb-btn" onclick="formatBlock('H1')" title="标题1">H1</button>
+              <button class="tb-btn" onclick="formatBlock('H2')" title="标题2">H2</button>
+              <button class="tb-btn" onclick="formatBlock('H3')" title="标题3">H3</button>
+              <button class="tb-btn" onclick="formatBlock('P')" title="正文">P</button>
               <div class="tb-sep"></div>
-              <button class="tb-btn" onclick="insertMdLine('- ')" title="列表">≡</button>
-              <button class="tb-btn" onclick="insertMdLine('> ')" title="引用">❝</button>
-              <button class="tb-btn" onclick="insertMd('`','`')" title="行内代码">&lt;&gt;</button>
-              <button class="tb-btn" onclick="insertMdBlock('```\n','\n```')" title="代码块">{ }</button>
+              <button class="tb-btn" onclick="formatRich('insertUnorderedList')" title="列表">≡</button>
+              <button class="tb-btn" onclick="formatBlock('BLOCKQUOTE')" title="引用">❝</button>
+              <button class="tb-btn" onclick="formatInlineCode()" title="行内代码">&lt;&gt;</button>
+              <button class="tb-btn" onclick="insertCodeBlock()" title="代码块">{ }</button>
               <div class="tb-sep"></div>
-              <button class="tb-btn" onclick="insertMd('[','](url)')" title="链接">🔗</button>
-              <button class="tb-btn" onclick="openMb('images/posts/',url=>{const ta=document.getElementById('markdownEditor');const s=ta.selectionStart;const ins='\n![图片]('+url+')\n';ta.value=ta.value.substring(0,s)+ins+ta.value.substring(s);ta.focus();})" title="从媒体库插入图片">🖼</button>
+              <button class="tb-btn" onclick="insertRichLink()" title="链接">🔗</button>
+              <button class="tb-btn" onclick="openMb('images/posts/',url=>insertRichImage(url))" title="从媒体库插入图片">🖼</button>
               <button class="tb-btn" onclick="showVideoDialog()" title="插入视频">🎬</button>
               <div class="tb-sep"></div>
-              <button class="tb-btn" onclick="insertMdLine('---')" title="分割线">—</button>
+              <button class="tb-btn" onclick="insertHorizontalRule()" title="分割线">—</button>
             </div>
-            <textarea id="markdownEditor" placeholder="开始写作... 支持 Markdown 格式&#10;&#10;# 大标题&#10;## 小标题&#10;**粗体** *斜体*&#10;- 列表项"></textarea>
+            <div id="visualEditor" class="visual-editor" contenteditable="true" data-placeholder="开始写作... 可以直接排版、插入图片、粘贴文字。"></div>
+            <textarea id="markdownEditor" class="is-hidden"></textarea>
+            <div class="editor-mode-note">编辑区会直观显示图片和排版，发布时自动保存为 Hugo 可读取的 Markdown。</div>
           </div>
         </div>
         <div>
@@ -1115,6 +1146,7 @@ function newPost() {
   document.getElementById('editorTitle').textContent = '写新文章';
   ['postTitle','markdownEditor','postCategory','postSectionPath','postTags','postFilename','postCover','editingPath','editingSha']
     .forEach(id => { document.getElementById(id).value = ''; });
+  setEditorMarkdown('');
   document.getElementById('postMenuGroup').value = '';
   onMenuGroupChange();
 }
@@ -1123,13 +1155,13 @@ async function editPost(path) {
   showPage('editor');
   document.getElementById('editorTitle').textContent = '编辑文章';
   document.getElementById('editingPath').value = path;
-  document.getElementById('markdownEditor').value = '加载中...';
+  document.getElementById('visualEditor').innerHTML = '<p>加载中...</p>';
   try {
     const file = await apiGet(`repos/${REPO}/contents/${path}`);
     const raw = b64decode(file.content);
     const { body, meta } = parseFrontmatter(raw);
     document.getElementById('postTitle').value = meta.title || path.split('/').pop().replace('.md','');
-    document.getElementById('markdownEditor').value = body;
+    setEditorMarkdown(body);
     document.getElementById('postFilename').value = path.split('/').pop().replace('.md','');
     document.getElementById('editingSha').value = file.sha;
     // 标签
@@ -1143,14 +1175,14 @@ async function editPost(path) {
     if (meta.cover) document.getElementById('postCover').value = meta.cover;
     else document.getElementById('postCover').value = '';
   } catch(e) {
-    document.getElementById('markdownEditor').value = '';
+    setEditorMarkdown('');
     showToast('加载文章失败：' + e.message, 'error');
   }
 }
 
 async function publishPost() {
   const title = document.getElementById('postTitle').value.trim();
-  const content = document.getElementById('markdownEditor').value;
+  const content = getEditorMarkdown();
   const category = document.getElementById('postCategory').value.trim();
   const tags = document.getElementById('postTags').value.trim();
   const cover = document.getElementById('postCover').value.trim();
@@ -1204,28 +1236,220 @@ async function deletePost(path, sha, name) {
   } catch(e) { showToast('删除失败：' + e.message, 'error'); }
 }
 
-// ===== Markdown 工具栏 =====
-function insertMd(before, after) {
-  const ta = document.getElementById('markdownEditor');
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s, e);
-  ta.value = ta.value.substring(0, s) + before + sel + after + ta.value.substring(e);
-  ta.focus();
-  ta.setSelectionRange(s + before.length, s + before.length + sel.length);
+// ===== Visual editor =====
+function editorEl() {
+  return document.getElementById('visualEditor');
 }
-function insertMdLine(prefix) {
-  const ta = document.getElementById('markdownEditor');
-  const s = ta.selectionStart;
-  const lineStart = ta.value.lastIndexOf('\n', s - 1) + 1;
-  ta.value = ta.value.substring(0, lineStart) + prefix + ta.value.substring(lineStart);
-  ta.focus();
+
+function focusEditor() {
+  const el = editorEl();
+  el.focus();
+  return el;
 }
-function insertMdBlock(before, after) {
-  const ta = document.getElementById('markdownEditor');
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s, e);
-  ta.value = ta.value.substring(0, s) + before + sel + after + ta.value.substring(e);
-  ta.focus();
+
+function setEditorMarkdown(markdown) {
+  document.getElementById('markdownEditor').value = markdown || '';
+  editorEl().innerHTML = markdownToHtml(markdown || '');
+}
+
+function getEditorMarkdown() {
+  const md = htmlToMarkdown(editorEl());
+  document.getElementById('markdownEditor').value = md;
+  return md;
+}
+
+function formatRich(command) {
+  focusEditor();
+  document.execCommand(command, false, null);
+}
+
+function formatBlock(tag) {
+  focusEditor();
+  document.execCommand('formatBlock', false, tag);
+}
+
+function insertHtmlAtCursor(html) {
+  focusEditor();
+  document.execCommand('insertHTML', false, html);
+}
+
+function formatInlineCode() {
+  const selection = window.getSelection();
+  const text = selection && selection.toString() ? selection.toString() : 'code';
+  insertHtmlAtCursor(`<code>${escHtml(text)}</code>`);
+}
+
+function insertCodeBlock() {
+  insertHtmlAtCursor('<pre><code>code</code></pre><p><br></p>');
+}
+
+function insertRichLink() {
+  focusEditor();
+  const url = prompt('请输入链接 URL');
+  if (!url) return;
+  const selection = window.getSelection();
+  const text = selection && selection.toString() ? selection.toString() : url;
+  insertHtmlAtCursor(`<a href="${escAttr(url)}" target="_blank" rel="noopener">${escHtml(text)}</a>`);
+}
+
+function insertRichImage(url) {
+  insertHtmlAtCursor(`<p><img src="${escAttr(url)}" alt="图片"></p><p><br></p>`);
+}
+
+function insertHorizontalRule() {
+  insertHtmlAtCursor('<hr><p><br></p>');
+}
+
+function insertMarkdownText(markdown) {
+  insertHtmlAtCursor(markdownToHtml(markdown));
+}
+
+function insertRawMarkdownBlock(markdown) {
+  insertHtmlAtCursor(`<p data-md-raw="${escAttr(markdown)}">${escHtml(markdown)}</p><p><br></p>`);
+}
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function escAttr(str) {
+  return escHtml(str).replace(/"/g, '&quot;');
+}
+
+function inlineMarkdownToHtml(text) {
+  let html = escHtml(text);
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  html = html.replace(/~~([^~]+)~~/g, '<s>$1</s>');
+  return html;
+}
+
+function markdownToHtml(markdown) {
+  if (!markdown.trim()) return '';
+  const lines = markdown.replace(/\r\n/g, '\n').split('\n');
+  const html = [];
+  let paragraph = [];
+  let list = [];
+  let inCode = false;
+  let codeLines = [];
+
+  const flushParagraph = () => {
+    if (!paragraph.length) return;
+    html.push(`<p>${inlineMarkdownToHtml(paragraph.join(' '))}</p>`);
+    paragraph = [];
+  };
+  const flushList = () => {
+    if (!list.length) return;
+    html.push(`<ul>${list.map(item => `<li>${inlineMarkdownToHtml(item)}</li>`).join('')}</ul>`);
+    list = [];
+  };
+
+  lines.forEach(line => {
+    if (line.trim().startsWith('```')) {
+      if (inCode) {
+        html.push(`<pre><code>${escHtml(codeLines.join('\n'))}</code></pre>`);
+        codeLines = [];
+        inCode = false;
+      } else {
+        flushParagraph();
+        flushList();
+        inCode = true;
+      }
+      return;
+    }
+    if (inCode) {
+      codeLines.push(line);
+      return;
+    }
+    const trimmed = line.trim();
+    if (!trimmed) {
+      flushParagraph();
+      flushList();
+      return;
+    }
+    if (trimmed === '---') {
+      flushParagraph();
+      flushList();
+      html.push('<hr>');
+      return;
+    }
+    const image = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if (image) {
+      flushParagraph();
+      flushList();
+      html.push(`<p><img src="${escAttr(image[2])}" alt="${escAttr(image[1] || '图片')}"></p>`);
+      return;
+    }
+    const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+    if (heading) {
+      flushParagraph();
+      flushList();
+      html.push(`<h${heading[1].length}>${inlineMarkdownToHtml(heading[2])}</h${heading[1].length}>`);
+      return;
+    }
+    if (/^- /.test(trimmed)) {
+      flushParagraph();
+      list.push(trimmed.replace(/^- /, ''));
+      return;
+    }
+    if (/^> /.test(trimmed)) {
+      flushParagraph();
+      flushList();
+      html.push(`<blockquote>${inlineMarkdownToHtml(trimmed.replace(/^> /, ''))}</blockquote>`);
+      return;
+    }
+    paragraph.push(trimmed);
+  });
+  if (inCode) html.push(`<pre><code>${escHtml(codeLines.join('\n'))}</code></pre>`);
+  flushParagraph();
+  flushList();
+  return html.join('');
+}
+
+function nodeToMarkdown(node) {
+  if (node.nodeType === Node.TEXT_NODE) return node.textContent.replace(/\s+/g, ' ');
+  if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+  const tag = node.tagName.toLowerCase();
+  const children = Array.from(node.childNodes).map(nodeToMarkdown).join('');
+  if (tag === 'strong' || tag === 'b') return `**${children.trim()}**`;
+  if (tag === 'em' || tag === 'i') return `*${children.trim()}*`;
+  if (tag === 's' || tag === 'strike') return `~~${children.trim()}~~`;
+  if (tag === 'code' && node.parentElement?.tagName.toLowerCase() !== 'pre') return `\`${node.textContent}\``;
+  if (tag === 'a') return `[${children.trim() || node.href}](${node.getAttribute('href') || node.href})`;
+  if (tag === 'img') return `![${node.getAttribute('alt') || '图片'}](${node.getAttribute('src') || ''})`;
+  if (tag === 'br') return '\n';
+  return children;
+}
+
+function blockToMarkdown(el) {
+  if (el.dataset && el.dataset.mdRaw) return el.dataset.mdRaw;
+  const tag = el.tagName.toLowerCase();
+  if (tag === 'h1') return `# ${nodeToMarkdown(el).trim()}`;
+  if (tag === 'h2') return `## ${nodeToMarkdown(el).trim()}`;
+  if (tag === 'h3') return `### ${nodeToMarkdown(el).trim()}`;
+  if (tag === 'blockquote') return nodeToMarkdown(el).trim().split('\n').map(line => `> ${line}`).join('\n');
+  if (tag === 'pre') return `\`\`\`\n${el.innerText.replace(/\n$/, '')}\n\`\`\``;
+  if (tag === 'ul') return Array.from(el.children).map(li => `- ${nodeToMarkdown(li).trim()}`).join('\n');
+  if (tag === 'ol') return Array.from(el.children).map((li, i) => `${i + 1}. ${nodeToMarkdown(li).trim()}`).join('\n');
+  if (tag === 'hr') return '---';
+  if (tag === 'p' || tag === 'div') return nodeToMarkdown(el).trim();
+  return nodeToMarkdown(el).trim();
+}
+
+function htmlToMarkdown(root) {
+  const blocks = Array.from(root.childNodes).map(node => {
+    if (node.nodeType === Node.TEXT_NODE) return node.textContent.trim();
+    if (node.nodeType === Node.ELEMENT_NODE) return blockToMarkdown(node);
+    return '';
+  }).map(s => s.trim()).filter(Boolean);
+  return blocks.join('\n\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 // ===== COS 配置 =====
@@ -1324,7 +1548,7 @@ let _mbCurrentFolder = '';
 function openMb(defaultFolder, callback) {
   _mbCallback = callback;
   _mbSelected = null;
-  _mbCurrentFolder = '';
+  _mbCurrentFolder = defaultFolder || '';
   document.getElementById('mbConfirmBtn').disabled = true;
   document.getElementById('mbSelectedInfo').textContent = '点击文件夹进入，点击图片选择';
   document.getElementById('mbMask').classList.add('show');
@@ -1450,22 +1674,18 @@ function switchVideoTab(tab) {
   document.getElementById('videoTabUrl').classList.toggle('active', tab === 'url');
 }
 function insertVideo() {
-  const ta = document.getElementById('markdownEditor');
-  const s = ta.selectionStart;
   let insert = '';
   if (_videoTab === 'bilibili') {
     let bv = document.getElementById('videoBvInput').value.trim();
     if (!bv) { showToast('请输入 BV 号', true); return; }
     if (!bv.startsWith('BV')) bv = 'BV' + bv;
-    insert = `\n{{< bilibili ${bv} >}}\n`;
+    insert = `{{< bilibili ${bv} >}}`;
   } else {
     const url = document.getElementById('videoUrlInput').value.trim();
     if (!url) { showToast('请输入视频 URL', true); return; }
-    insert = `\n<video controls width="100%" style="border-radius:8px;margin:12px 0">\n  <source src="${url}" type="video/mp4">\n</video>\n`;
+    insert = `<video controls width="100%" style="border-radius:8px;margin:12px 0">\n  <source src="${url}" type="video/mp4">\n</video>`;
   }
-  ta.value = ta.value.substring(0, s) + insert + ta.value.substring(s);
-  ta.focus();
-  ta.setSelectionRange(s + insert.length, s + insert.length);
+  insertRawMarkdownBlock(insert);
   closeVideoDialog();
   showToast('已插入视频');
 }
